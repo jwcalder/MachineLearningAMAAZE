@@ -21,7 +21,9 @@ import ssl
 #from sklearn.metrics import confusion_matrix, accuracy_score
 #from sklearn.pipeline import make_pipeline
 #from sklearn import metrics
-
+pip install -q graphlearning
+import graphlearning as gl
+from GraphLearn import GraphLearning
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
