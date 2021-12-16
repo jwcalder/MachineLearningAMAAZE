@@ -103,7 +103,16 @@ print("LDA: %.2f%%"%ST.mean(LDA_acc))
 
 # ### Graph based learning etc.
 # Copy the structure of the above algorithms, and it should *just work*
-
+X = df.iloc[:,2:]
+X = np.array(X)#Load data
+k = 20 #number of neighbors
+W = GraphLearning.getMatrix(X, k)#Scale Data and get matrix.
+GL_classifier = GraphLearning(W, k, 'laplace')
+cv = RepeatedKFold(n_splits = 4, n_repeats = reps)
+data = np.arange(X.shape[0])
+gl_acc = 100*cross_val_score(GL_classifier, data, labels, cv = cv, scoring='accuracy')
+print(gl_acc)
+print(np.mean(gl_acc))
 
 
 # AHHHHHHHHHHH
