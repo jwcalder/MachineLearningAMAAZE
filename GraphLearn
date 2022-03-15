@@ -17,24 +17,26 @@ class GraphLearning:
         self.algorithm = algorithm
         self.W = W
         self.all_pred_labels = None
-
-    def fit(self, x_train, y_train):
+    #Added the percentage of training data you want
+    def fit(self, y_train, train_pctg):
         #x_train needs to have the indices of all the points. Easiest–make it the first/last column.
         #This is the function you should define
         #75% of the data is what I found to be the best at classifying the
-        train_ind = np.array(x_train)
-        labels = np.array(y_train)
+        train_ind = gl.trainsets.generate(y_train, rate=train_pctg)
+        train_labels = y_train[train_ind]
         #Get train indices from x_train, I think we'll have to include them as part of the x data
-        self.all_pred_labels = gl.graph_ssl(self.W, train_ind, labels, algorithm=self.algorithm)
+        self.all_pred_labels = gl.graph_ssl(self.W, train_ind, train_labels, algorithm=self.algorithm)
 
     def predict(self, x_test):
         test_ind = np.array(x_test) #Get test indices from x_test
         return self.all_pred_labels[test_ind]
 
-    def get_params(self, deep = False):
+    def get_params(self):
       return {'W':self.W, 'k':self.k, 'algorithm': self.algorithm}
+
     def getMatrix(X, k):
+        #Look at variational neural network.
         scaler = preprocessing.StandardScaler().fit(X)  # Scaling data
         X_scaled = scaler.transform(X)
-        W = gl.knn_weight_matrix(k, data=X_scaled)
+        W = gl.weightmatrix.knn(X_scaled,k)
         return W
