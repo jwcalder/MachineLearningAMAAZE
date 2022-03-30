@@ -30,8 +30,13 @@ for specimen in angledata:
 keep = np.zeros(len(df),dtype=bool)
 for i in range(len(df)):
     keep[i] = df['Specimen'][i] in specimen_list
+df = df[keep].reset_index().drop(['index'],axis=1)
 
-df = df[keep]
-df = df.to_csv('frag_level_data.csv', index=False)
-
-
+#Add trabecular data as well
+trab_df = pd.read_csv(data_dir+'finaldata_trabecula.csv', encoding = 'cp1252')
+trab = []
+for i in range(len(df)):
+    trab_row = trab_df.loc[trab_df['Specimen'] == df['Specimen'][i]]
+    trab += [str(trab_row['trab'].iloc[0])]
+df['trab'] = trab
+df.to_csv('frag_level_data.csv', index=False)
