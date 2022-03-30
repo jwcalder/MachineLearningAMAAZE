@@ -1,4 +1,5 @@
 import amaazetools.trimesh as tm
+from utils import data_dir
 import pandas as pd
 import numpy as np
 import os
@@ -23,7 +24,7 @@ df['nv c 2'] = []
 df['nv c 3'] = []
 
 #Directory to look for ply files in
-directory = './' #Current directory where script is run from
+directory = data_dir + 'finaldata_VtgonMeshes'
 files = os.listdir(directory)
 for i in trange(len(files)): # If you've got a lot of files, this may take a while
     filename = files[i]
@@ -33,15 +34,13 @@ for i in trange(len(files)): # If you've got a lot of files, this may take a whi
       # The bounding box itself
       bbox = mesh.bbox()
       
-      # Bounding box plane
-      X = mesh.points
-      x0 = np.mean(X,axis=0)
-      _, vecs = tm.pca(X-x0)
+      # Bounding box direction vectors
+      _, vecs = tm.pca(mesh.points)
       
       # V1 is the longitudinal plane, I believe. 
-      v1 = vecs[0] # I'm grabbing all of the vectors in case I'm using the wrong one
-      v2 = vecs[1] # Because this script takes forever to run
-      v3 = vecs[2] # I think it's because these ply files are pretty big
+      v1 = vecs[:,0] # I'm grabbing all of the vectors in case I'm using the wrong one
+      v2 = vecs[:,1] # Because this script takes forever to run
+      v3 = vecs[:,2] # I think it's because these ply files are pretty big
       
       df.loc[len(df)] = [filename[:10], 
                          mesh.surf_area(),

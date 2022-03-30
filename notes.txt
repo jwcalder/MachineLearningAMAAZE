@@ -1,0 +1,21 @@
+1. Katrina manaul file: finaldata_break_level.csv
+Columns interior_edge,Interrupted,Interruptedby,ridge_notch,interior_notch
+merge with VG_stats.csv
+
+2. Add script to generate finaldata_ridgelenghts.csv from the meshlab PPP file. loadppfiles.py. ppfiles are in /drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/finaldata_ppfiles
+
+3. Inventory file: finaldata_inventoryall.csv, Species, Common, SzCl, SizeRangeLb, SizeRangeKg, SkelPort, LPort, Element, Side, ActorTaxon, Effector
+
+Break-level merge:
+a. VG_stats.csv (break-level)
+b. ridgelengths.csv
+c. arclengths (alex will put script in github) & arcangles
+d. Manual break-level (finadata_break_level.csv)
+
+Frag-level merge:
+a. Inventory file data
+b. Manual data (trabecular present/absent) finaldata_trabeculae.csv (colume I trab true/false).
+c. bbox, surface area, volume from automated script (Alex will upload to github)
+Meshes: /drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/finaldata_VtgonMeshes
+
+
