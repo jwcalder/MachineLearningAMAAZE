@@ -54,7 +54,7 @@ for i in range(len(df)+1):
         
         #Order the points correctly along each curve
         idx = tsp_order(x,y,z)
-        save_curve(x,y,z,idx,current_break,'figures/tsp_'+current_mesh+'_'+str(current_break)+'.png')
+        #save_curve(x,y,z,idx,current_break,'figures/tsp_'+current_mesh+'_'+str(current_break)+'.png')
         x,y,z = x[idx],y[idx],z[idx]
 
         fit = df['fit'].values[start_index:i].astype(float)
