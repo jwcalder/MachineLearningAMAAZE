@@ -11,7 +11,7 @@ with open('break_curve_data.pkl', 'rb') as f:
     angledata = pickle.load(f)
 
 #Open mesh_stats data frame
-mesh_stats_df = pd.read_csv('mesh_stats_final.csv', encoding = 'cp1252')
+mesh_stats_df = pd.read_csv('mesh_stats.csv', encoding = 'cp1252')
 
 #Open manual data
 manual_data_df = pd.read_csv(data_dir+'manual_break_level.csv', encoding = 'cp1252')

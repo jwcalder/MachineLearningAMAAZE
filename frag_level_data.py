@@ -32,6 +32,6 @@ for i in range(len(df)):
     keep[i] = df['Specimen'][i] in specimen_list
 
 df = df[keep]
-df = df.to_csv('inventory_data.csv', index=False)
+df = df.to_csv('frag_level_data.csv', index=False)
 
 

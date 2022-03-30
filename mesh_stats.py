@@ -59,4 +59,4 @@ for i in trange(len(files)): # If you've got a lot of files, this may take a whi
                          v3[2]
                          ]
 
-df.to_csv('mesh_stats_final.csv',index=False)      
+df.to_csv('mesh_stats.csv',index=False)      
