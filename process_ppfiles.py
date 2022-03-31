@@ -47,7 +47,7 @@ for i in range(len(pp_df)):
 
     pp_dict[specimen][point_num] = [x,y,z]
 
-df = pd.read_csv(data_dir + "manual_break_level.csv", usecols = ['Specimen', 'ep1', 'ep2'])
+df = pd.read_csv(data_dir + "manual_break_level.csv", usecols = ['Specimen', 'BreakNo', 'ep1', 'ep2'])
 df["ep1_x"] = 0 
 df["ep1_y"] = 0
 df["ep1_z"] = 0

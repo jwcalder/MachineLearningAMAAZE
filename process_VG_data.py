@@ -6,7 +6,7 @@ from collections import defaultdict
 
 # Read in the main data
 df = pd.read_csv(data_dir + 'finaldata_angle_level.csv', encoding = 'cp1252')
-endpoints_df = pd.read_csv(data_dir + 'finaldata_ridgelengths.csv')
+endpoints_df = pd.read_csv('break_ep_data.csv')
 
 #Sort data
 df = df.sort_values(by=['Mesh_Name','BreakNo'], ignore_index=True)
@@ -33,7 +33,7 @@ for i in range(len(df)+1):
     #Check if we are moving on to a new break # or mesh, or we got to the end of the df
     if (i == len(df)) or (current_break != df['BreakNo'][i]) or (current_mesh != df['Mesh_Name'][i][:10]):
         
-        # Th
+        # Get end points of current break
         ep1, ep2 = endpoints_dict[current_mesh][current_break]
         x1, y1, z1 = ep1
         x2, y2, z2 = ep2
