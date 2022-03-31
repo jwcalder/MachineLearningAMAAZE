@@ -6,8 +6,6 @@ import numpy as np
 import glob
 import csv
 
-outputFile = "ridge_endpoints.csv"
-
 dir = 'ppfiles/'
 fileList = [f for f in glob.glob(dir + "*.pp")]
 
