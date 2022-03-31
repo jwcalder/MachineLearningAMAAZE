@@ -3,9 +3,49 @@ import amaazetools.trimesh as tm
 import pickle
 import matplotlib.pyplot as plt
 from scipy import spatial
+import os,sys
+import pandas as pd
 
-#data_dir = '/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/'
-data_dir = '/Users/jeff/Moclan/Paper3_MoclanReplicationPaper/'
+
+#Put all possible directory locations here
+data_dirs = ['/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/',
+             '/Users/jeff/Moclan/Paper3_MoclanReplicationPaper/',
+             '/data/ML_data/']
+
+#Find the directory that exists on a particular machine
+try:
+    data_dir_enum = enumerate(data_dirs)
+    _,data_dir = next(data_dir_enum)
+    while not os.path.isdir(data_dir):
+        _,data_dir = next(data_dir_enum)
+except:
+    print('Warning: Could not find data directory.')
+
+def sample_inventory(fields):
+
+    #Load inventory file
+    df = pd.read_csv(data_dir + 'finaldata_inventoryall.csv', encoding = 'cp1252')
+    df = df[fields]
+
+    #Load angle data dictionary
+    with open('break_curve_data.pkl', 'rb') as f:
+        angledata = pickle.load(f)
+
+    specimen_list = []
+    for specimen in angledata:
+        specimen_list += [specimen]
+
+    keep = np.zeros(len(df),dtype=bool)
+    for i in range(len(df)):
+        keep[i] = df['Specimen'][i] in specimen_list
+    df = df[keep].reset_index().drop(['index'],axis=1)
+
+    num_breaks = np.zeros(len(df))
+    for i in range(len(df)):
+        num_breaks[i] = len(angledata[df['Specimen'][i]])
+    df['NumBreaks'] = num_breaks.astype(int)
+
+    return df
 
 def arc_length(x,y,z):
     v = np.vstack((x,y,z))
