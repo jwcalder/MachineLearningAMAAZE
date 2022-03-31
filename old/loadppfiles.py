@@ -1,6 +1,8 @@
 #This is the script that is used to reorganize the data from the .pp files into a .csv format.
 from utils import data_dir
 import meshlab_pickedpoints as mpp
+import pandas as pd
+import numpy as np
 import glob
 import csv
 
@@ -36,3 +38,8 @@ with open(outputFile, 'w', newline='') as csvfile:
     writer.writerow(headerList)
     for struct in structList:
         writer.writerows(struct.collapse())
+
+arr = np.empty((0,5), int)
+for struct in structList:
+    arr = np.append(arr, struct.collapse(), axis=0)
+df = pd.DataFrame(arr, columns=["Specimen", "Point_Number", "x", "y", "z"])

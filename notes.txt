@@ -19,3 +19,5 @@ c. bbox, surface area, volume from automated script (Alex will upload to github)
 Meshes: /drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/finaldata_VtgonMeshes
 
 
+"ridgelengthdata.py"
+
