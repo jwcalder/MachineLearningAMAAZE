@@ -16,16 +16,25 @@ mesh_stats_df = pd.read_csv('mesh_stats.csv', encoding = 'cp1252')
 #Open manual data
 manual_data_df = pd.read_csv(data_dir+'manual_break_level.csv', encoding = 'cp1252')
 manual_fields = ['interior_edge','Interrupted','Interruptedby','ridge_notch','interior_notch']
+frag_df = pd.read_csv('frag_data.csv')
 
-sys.stdout = open('break_level_data.csv', 'w')
+#Frag level fields
+frag_fields = ['Species','Common','SzCl','SizeRangeLb','SizeRangeKg','SkelPort','LPort','Element','Side','ActorTaxon','Effector','trab','Surface Area','Volume','Bounding Box Dim1','Bounding Box Dim2','Bounding Box Dim3']
+
+sys.stdout = open('break_level_ml.csv', 'w')
 print('Specimen,BreakNo,Count,Mean,Median,STD,Max,Min,Range,ArcLength,EuclideanLength,ArcAngle',end='')
 for field in manual_fields:
+    print(','+field,end='')
+for field in frag_fields:
     print(','+field,end='')
 print('')
 #Loop over the meshes
 for mesh_name in angledata:
+    
     mesh_stats = mesh_stats_df.loc[mesh_stats_df['Specimen'] == mesh_name]
     manual_data = manual_data_df.loc[manual_data_df['Specimen'] == mesh_name]
+    frag_data = frag_df.loc[frag_df['Specimen'] == mesh_name]
+
     for break_num in angledata[mesh_name]:
         print(mesh_name[:10],end=',')
         print(break_num,end=',')
@@ -67,6 +76,9 @@ for mesh_name in angledata:
 
         for field in manual_fields:
             print(','+str(manual_data[field].iloc[0]),end='')
+
+        for field in frag_fields:
+            print(','+str(frag_data[field].iloc[0]),end='')
 
         print('')
 

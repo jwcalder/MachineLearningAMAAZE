@@ -6,9 +6,12 @@ import pandas as pd
 
 #Fields to grab
 df = sample_inventory(['Specimen','Species', 'Element', 'Effector'])
+df = df.replace('mtcar','mtpod')
+df = df.replace('mttar','mtpod')
 
 species = ['Cervus canadensis','Odocoileus virginianus']
-element = ['fem','hum','mtcar','mtpod','mttar','other','rad-uln','tib','unknown']
+element = ['fem','hum','mtpod','other','rad-uln','tib','unknown']
+#element = ['fem','hum','mtcar','mtpod','mttar','other','rad-uln','tib','unknown']
 effector = ['HSAnv','teeth']
 
 savefile = 'tables/inventory.tex'

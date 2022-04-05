@@ -51,4 +51,4 @@ for field in mesh_stats_fields:
         vals += [mesh_stats_row[field].iloc[0]]
     df[field] = vals
 
-df.to_csv('frag_level_data.csv', index=False)
+df.to_csv('frag_inventory.csv', index=False)
