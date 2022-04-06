@@ -40,6 +40,43 @@ break_level_fields_categorial = ['interior_edge',
                                  'Side',
                                  'trab']
                                    
+#Fields to compute summary statistics of
+frag_level_sum_stats_fields = ['Mean',
+                               'Median',
+                               'STD',
+                               'Max',
+                               'Min',
+                               'Range',
+                               'ArcLength',
+                               'EuclideanLength',
+                               'ArcAngle']
+
+#Break summary statistics to use at fragment level 
+frag_level_sum_stats = ['min','max','mean','median','std']
+
+#Frag level count fields
+frag_level_count_fields =  ['interior_edge',
+                            'Interrupted',
+                            'ridge_notch',
+                            'interior_notch']
+
+#Frag level categorical fields
+frag_level_fields_categorical = ['SzCl',
+                                 'SizeRangeLb',
+                                 'SizeRangeKg',
+                                 'SkelPort',
+                                 'LPort',
+                                 'Element',
+                                 'Side',
+                                 'trab']
+
+#Frag level numerical fields
+frag_level_fields_numerical = ['Surface Area',
+                               'Volume',
+                               'Bounding Box Dim1',
+                               'Bounding Box Dim2',
+                               'Bounding Box Dim3']
+
 #Find the directory that exists on a particular machine
 try:
     data_dir_enum = enumerate(data_dirs)
@@ -49,7 +86,8 @@ try:
 except:
     print('Warning: Could not find data directory.')
 
-def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, target_field='Effector'):
+def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, target_field='Effector',
+                           standard_scaler=False):
     """Break Level Machine Learning Dataset
     ========
 
@@ -64,6 +102,8 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
         List of categorical fields to use. Uses all if not provided.
     target_field : string (optional), default = 'Effector'
         Field to use for target of machine learning.
+    standard_scaler : bool (optional), default = False
+        Whether to apply standard scaling to the dataset.
 
     Returns
     -------
@@ -107,7 +147,97 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
     specimens = df['Specimen'].values
     break_numbers = df['BreakNo'].values
 
+    #Standard scaler
+    if standard_scaler:
+        data = preprocessing.StandardScaler().fit_transform(data)  # Scaling data
+
     return data,target,specimens,break_numbers,target_names
+
+def frag_level_ml_dataset(numerical_fields=None, categorical_fields=None, sum_stats_fields=None,
+                          sum_stats=None, count_fields=None, target_field='Effector', standard_scaler=False):
+    """Fragment Level Machine Learning Dataset
+    ========
+
+    Converts the fragment level data to numerical data via one-hot encodings and 
+    returns a numerical dataset at the fragment-level for use in machine learning.
+    
+    Parameters
+    ----------
+    numerical_fields : list (optional)
+        List of numerical fields to use. Uses all if not provided.
+    categorical_fields : list (optional)
+        List of categorical fields to use. Uses all if not provided.
+    sum_stats_fields : list (optional)
+        List of summary statistics fields to use. Uses all if not provided.
+    sum_stats : list (optional)
+        Summary statistics to use. Uses all if not provided.
+    count_fields : list (optional)
+        List of categorical counting fields.
+    target_field : string (optional), default = 'Effector'
+        Field to use for target of machine learning.
+    standard_scaler : bool (optional), default = False
+        Whether to apply standard scaling to the dataset.
+
+    Returns
+    -------
+    data : numpy array (float)
+        Features.
+    target : numpy array (int)
+        Targets as integers
+    specimens : numpy array (string)
+        List of specimen names.
+    target_names : numpy array (string)
+        List of target names.
+    """
+
+    if numerical_fields is None:
+        numerical_fields = frag_level_fields_numerical
+    if categorical_fields is None:
+        categorical_fields = frag_level_fields_categorical
+    if sum_stats_fields is None:
+        sum_stats_fields = frag_level_sum_stats_fields
+    if sum_stats is None:
+        sum_stats = frag_level_sum_stats
+    if count_fields is None:
+        count_fields = frag_level_count_fields
+
+    df = pd.read_csv('frag_level_ml.csv') 
+
+    #Categorical Data
+    cat_data = df[categorical_fields]
+    le = preprocessing.OneHotEncoder(sparse=False)
+    cat_data = le.fit_transform(cat_data)
+
+    #Add all summary statistics fields
+    for field in sum_stats_fields:
+        for stat in sum_stats:
+            numerical_fields += [field + '_' + stat]
+
+    #Add all count fields
+    for field in count_fields:
+        for c in df.columns:
+            if c.startswith(field):
+                numerical_fields += [c]
+                    
+    #Numerical data
+    num_data = df[numerical_fields].values
+
+    #Combine data
+    data = np.hstack((cat_data,num_data))
+
+    #Target
+    le = preprocessing.LabelEncoder()
+    target = le.fit_transform(df[target_field])
+    target_names = le.classes_
+
+    #Specimen names and break numbers
+    specimens = df['Specimen'].values
+
+    #Standard scaler
+    if standard_scaler:
+        data = preprocessing.StandardScaler().fit_transform(data)  # Scaling data
+
+    return data,target,specimens,target_names
 
 def sample_inventory(fields):
     """Sample Inventory
