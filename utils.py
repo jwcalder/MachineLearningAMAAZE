@@ -39,11 +39,6 @@ break_level_fields_categorial = ['interior_edge',
                                  'Interrupted',
                                  'ridge_notch',
                                  'interior_notch',
-                                 'SzCl',
-                                 'SkelPort',
-                                 'LPort',
-                                 'Element',
-                                 'Side',
                                  'trab']
                                    
 #Fields to compute summary statistics of
@@ -67,14 +62,7 @@ frag_level_count_fields =  ['interior_edge',
                             'interior_notch']
 
 #Frag level categorical fields
-frag_level_fields_categorical = ['SzCl',
-                                 'SizeRangeLb',
-                                 'SizeRangeKg',
-                                 'SkelPort',
-                                 'LPort',
-                                 'Element',
-                                 'Side',
-                                 'trab']
+frag_level_fields_categorical = ['trab']
 
 #Frag level numerical fields
 frag_level_fields_numerical = ['Surface Area',
@@ -92,8 +80,7 @@ try:
 except:
     print('Warning: Could not find data directory.')
 
-def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, target_field='Effector',
-                           standard_scaler=False):
+def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, target_field='Effector'):
     """Break Level Machine Learning Dataset
     ========
 
@@ -108,8 +95,6 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
         List of categorical fields to use. Uses all if not provided.
     target_field : string (optional), default = 'Effector'
         Field to use for target of machine learning.
-    standard_scaler : bool (optional), default = False
-        Whether to apply standard scaling to the dataset.
 
     Returns
     -------
@@ -153,14 +138,10 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
     specimens = df['Specimen'].values
     break_numbers = df['BreakNo'].values
 
-    #Standard scaler
-    if standard_scaler:
-        data = preprocessing.StandardScaler().fit_transform(data)  # Scaling data
-
     return data,target,specimens,break_numbers,target_names
 
 def frag_level_ml_dataset(numerical_fields=None, categorical_fields=None, sum_stats_fields=None,
-                          sum_stats=None, count_fields=None, target_field='Effector', standard_scaler=False):
+                          sum_stats=None, count_fields=None, target_field='Effector'):
     """Fragment Level Machine Learning Dataset
     ========
 
@@ -181,8 +162,6 @@ def frag_level_ml_dataset(numerical_fields=None, categorical_fields=None, sum_st
         List of categorical counting fields.
     target_field : string (optional), default = 'Effector'
         Field to use for target of machine learning.
-    standard_scaler : bool (optional), default = False
-        Whether to apply standard scaling to the dataset.
 
     Returns
     -------
@@ -238,10 +217,6 @@ def frag_level_ml_dataset(numerical_fields=None, categorical_fields=None, sum_st
 
     #Specimen names and break numbers
     specimens = df['Specimen'].values
-
-    #Standard scaler
-    if standard_scaler:
-        data = preprocessing.StandardScaler().fit_transform(data)  # Scaling data
 
     return data,target,specimens,target_names
 
