@@ -487,8 +487,6 @@ class Net(nn.Module):
             if verbose:
                 print('\nEpoch: %d'%epoch)
             self.train_epoch(device, data, target, optimizer, epoch, batch_size, verbose)
-            #test_acc = test(model, device, data_test, target_test, 'Test ')
-            #train_acc = test(model, device, data_train, target_train, 'Train')
             scheduler.step()
 
     def train_epoch(self, device, data, target, optimizer, epoch, batch_size, verbose):
@@ -496,11 +494,11 @@ class Net(nn.Module):
         self.train()
         batch_idx = 0
         for idx in range(0,len(data),batch_size):
+
             data_batch, target_batch = data[idx:idx+batch_size], target[idx:idx+batch_size]
             data_batch, target_batch = data_batch.to(device), target_batch.to(device)
 
             optimizer.zero_grad()
-
             output = self.forward(data_batch)
             loss = F.nll_loss(output, target_batch)
             loss.backward()
