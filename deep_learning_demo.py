@@ -18,7 +18,6 @@ for i in range(1,T+1):
 
     data_train, data_test, target_train, target_test = train_test_split(data, target, test_size=0.25)
 
-    model.reset()
     model.fit(data_train, target_train, epochs=100, batch_size=32, learning_rate=1)
 
     pred = model.predict(data_test)

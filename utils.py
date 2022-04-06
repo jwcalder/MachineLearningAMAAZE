@@ -462,6 +462,9 @@ class Net(nn.Module):
             Whether to print out details during training or not.
         """
 
+        #Reset weights
+        self.reset()
+
         #Convert to torch
         data = torch.from_numpy(data).float()
         target = torch.from_numpy(target).long()
