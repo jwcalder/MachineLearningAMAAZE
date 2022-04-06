@@ -1,3 +1,8 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import amaazetools.trimesh as tm
 from sklearn import preprocessing
@@ -11,7 +16,8 @@ import pandas as pd
 #Put all possible directory locations here
 data_dirs = ['/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/',
              '/Users/jeff/Moclan/Paper3_MoclanReplicationPaper/',
-             '/data/ML_data/']
+             '/data/ML_data/',
+             '/home/jeff/Dropbox/Work/AMAAZE/csv_files/']
 
 break_level_fields_numerical = ['Count',
                                 'Mean',
@@ -371,6 +377,162 @@ def tsp_order(x,y,z):
             min_path = path
     return min_path
 
+
+class Net(nn.Module):
+    def __init__(self, structure=[10,10], num_classes=2, dropout_rate=0.5, batch_normalization=True):
+        """Neural Network Classifier
+        ========
+
+        General class for a neural network classifier in pytorch.
+        
+        Parameters
+        ----------
+        structure : list (optional)
+            List giving number of inputs to each layer. 
+            The default structure=[10,10,2] constructs a 2-layer neural network with 10 inputs 
+             and 10 nerons in the first layer.
+        num_classes : int (optional)
+            Number of classes.
+        dropout_rate : float (optional), default=0.5
+            Dropout rate.
+        batch_normalization : bool (optional), default=True
+            Whether to apply batch normalization.
+        """
+
+        super(Net, self).__init__()
+
+        self.batch_normalization = batch_normalization
+        self.dropout_rate = dropout_rate
+        self.num_layers = len(structure)-1
+        self.fc = nn.ModuleList()
+        self.bn = nn.ModuleList()
+        for i in range(self.num_layers):
+            self.fc.append(nn.Linear(structure[i],structure[i+1]))
+            self.bn.append(nn.BatchNorm1d(structure[i]))
+        self.final = nn.Linear(structure[self.num_layers],num_classes)
+
+        self.dropout = nn.Dropout(dropout_rate)
+
+    def reset(self):
+
+        self.final.reset_parameters()
+        for i,l in enumerate(self.fc):
+            l.reset_parameters()
+            if self.batch_normalization:
+                self.bn[i].reset_parameters()
+
+    def forward(self, x):
+
+        for i,l in enumerate(self.fc):
+            if self.batch_normalization:
+                x = self.bn[i](x)
+            if self.dropout_rate > 0:
+                x = self.dropout(x)
+            x = F.relu(l(x))
+        if self.dropout_rate > 0:
+            x = self.dropout(x)
+        x = self.final(x)
+        output = F.log_softmax(x, dim=1)
+        return output
+
+    def fit(self, data, target, epochs=100, cuda=True, learning_rate=0.1, 
+            batch_size=32, gamma=0.9, verbose=False):
+        """Fit
+        ========
+
+        Trains the neural network.
+        
+        Parameters
+        ----------
+        data : numpy array (float)
+            Features
+        target : numpy array (int)
+            Labels.
+        epochs : int (optional), default=100
+            Number of training epochs (loops over whole dataset).
+        cuda : bool (optional), default=True
+            Whether to use GPU, if found.
+        learning_rate : float (optional), defualt = 0.1
+            Learning rate for training.
+        batch_size : int (optional), default = 32
+            Size of mini-batches for stochastic gradient descent.
+        gamma : float (optional), default = 0.9
+            Scheduler parameter. How much to decrease learning rate at each iteration.
+        verbose : bool (optional), default = False
+            Whether to print out details during training or not.
+        """
+
+        #Convert to torch
+        data = torch.from_numpy(data).float()
+        target = torch.from_numpy(target).long()
+
+        #Cuda (GPU)
+        use_cuda = cuda and torch.cuda.is_available()
+        if verbose:
+            if use_cuda:
+                print("Using GPU!")
+            else:
+                print("Using CPU.")
+        device = torch.device("cuda" if use_cuda else "cpu")
+        self.to(device)
+
+        #Optimizer and scheduler
+        optimizer = optim.Adadelta(self.parameters(), lr=learning_rate)
+        scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+
+        for epoch in range(1, epochs + 1):
+            if verbose:
+                print('\nEpoch: %d'%epoch)
+            self.train_epoch(device, data, target, optimizer, epoch, batch_size, verbose)
+            #test_acc = test(model, device, data_test, target_test, 'Test ')
+            #train_acc = test(model, device, data_train, target_train, 'Train')
+            scheduler.step()
+
+    def train_epoch(self, device, data, target, optimizer, epoch, batch_size, verbose):
+
+        self.train()
+        batch_idx = 0
+        for idx in range(0,len(data),batch_size):
+            data_batch, target_batch = data[idx:idx+batch_size], target[idx:idx+batch_size]
+            data_batch, target_batch = data_batch.to(device), target_batch.to(device)
+
+            optimizer.zero_grad()
+
+            output = self.forward(data_batch)
+            loss = F.nll_loss(output, target_batch)
+            loss.backward()
+            optimizer.step()
+            if verbose:
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, batch_idx * len(data_batch), len(target),
+                    100. * batch_idx / int(len(data)/batch_size), loss.item()))
+            batch_idx += 1
+
+    def predict(self, data):
+        """Predict
+        ========
+
+        Predict labels using trained neural network.
+        
+        Parameters
+        ----------
+        data : numpy array (float)
+            Features
+
+        Returns
+        -------
+        labels : numpy array (int)
+            Predicted labels.
+        """
+
+        data = torch.from_numpy(data).float()
+        self.to(torch.device("cpu"))
+        self.eval()
+        with torch.no_grad():
+            pred = torch.argmax(self.forward(data), dim=1)
+        labels = pred.numpy().astype(int)
+        return labels
+
 def tsp_path(D,i):
     n = D.shape[0]
     path = [i]
@@ -431,5 +593,6 @@ def plot_curve(x,y,z,idx,break_num):
     ax.scatter(x[idx[-1]],y[idx[-1]],z[idx[-1]],c='g',s=100)
     ax.plot(x[idx],y[idx],z[idx])
     ax.set_title('Break %d'%break_num)
+
 
 
