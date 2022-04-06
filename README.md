@@ -1,8 +1,10 @@
 # MachineLearningAnthro
 
-Below is an overview of the workflow. In order to run any of the scripts on your machine, you just need to edit `utils.py` and add the location of `Paper3_MoclanReplicationPaper` on your local machine to the `data_dirs` list. The code will look for the directory in all locations in that list, so it can work on everyone's machine without constantly making changes. On my Linux machine the directory is
+## Processing raw data into ML datasets
+
+Below is an overview of the workflow for taking the raw data and converting it into break-level and fragment-level datasets that can be used in machine learning. In order to run any of the scripts on your machine, you just need to edit `utils.py` and add the location of `Paper3_MoclanReplicationPaper` on your local machine to the `data_dirs` list. The code will look for the directory in all locations in that list, so it can work on everyone's machine without constantly making changes. On my Linux machine the directory is
 ```
-/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/'
+/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/
 ```
 
 1. `process_ppfiles.py`: This script loads the pp files and generates `break_ep_data.csv`. The ppfiles are located in the ppfiles folder in github.
@@ -11,6 +13,16 @@ Below is an overview of the workflow. In order to run any of the scripts on your
 4. `frag_data.py`: This script compiles the fragment level data, from both `mesh_stats.csv`, the inventory file `finaldata_inventoryall.csv` (Google drive), and the trabeculae file `finaldata_trabecula.csv` (Google drive). This generates `frag_data.csv`. 
 5. `compile_break_level_ml.py`: This generates the dataset to be used for machine learning at the break level. It requires `manaul_break_level.csv` (Google drive),`mesh_stats.csv`, and `break_curve_data.pkl`. The script outputs the dataset to the file `break_level_ml.csv`.
 6. `compile_frag_level_ml.py`: This generates the dataset to be used for machine learning at the fragment level. It requires `break_level_ml.csv` and `frag_data.csv`, and outputs the dataset to `frag_level_ml.csv`.
+
+## Loading data for machine learning
+
+The `utils.py` file contains functions for loading the machine learning datasets as numerical datasets that can be directly used in machine learning. To load the break-level data, run
+```
+from utils import break_level_ml_datase
+data,target,specimens,target_names = break_level_ml_dataset()
+```
+The first two outputs `data` and `target` are the features and labels for the dataset, all converted to numerical values. The final outputs `specimens` and `target_names` are lists of specimen names for all datapoints and the target names for each numerical label. The function has several optional arguments to configure how the dataset is built, and the field used for targets; see the documentation in `utils.py` for more information.
+
 
 ## Other scripts
 We need to describe all other scripts:
