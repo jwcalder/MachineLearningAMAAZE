@@ -18,10 +18,11 @@ Below is an overview of the workflow for taking the raw data and converting it i
 
 The `utils.py` file contains functions for loading the machine learning datasets as numerical datasets that can be directly used in machine learning. To load the break-level data, run
 ```
-from utils import break_level_ml_datase
-data,target,specimens,target_names = break_level_ml_dataset()
+from utils import break_level_ml_dataset
+
+data,target,specimens,break_numbers,target_names = break_level_ml_dataset()
 ```
-The first two outputs `data` and `target` are the features and labels for the dataset, all converted to numerical values. The final outputs `specimens` and `target_names` are lists of specimen names for all datapoints and the target names for each numerical label. The function has several optional arguments to configure how the dataset is built, and the field used for targets; see the documentation in `utils.py` for more information.
+The first two outputs `data` and `target` are the features and labels for the dataset, all converted to numerical values. The final outputs `specimens`, `break_numbers`, and `target_names` are lists of specimen names and break numbers for all datapoints (breaks) and the target names for each numerical label. The function has several optional arguments to configure how the dataset is built, and the field used for targets; see the documentation in `utils.py` for more information.
 
 
 ## Other scripts

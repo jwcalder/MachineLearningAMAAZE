@@ -73,6 +73,8 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
         Targets as integers
     specimens : numpy array (string)
         List of specimen names.
+    break_numbers : numpy array (int)
+        Break number for each specimen.
     target_names : numpy array (string)
         List of target names.
         
@@ -101,10 +103,11 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
     target = le.fit_transform(df[target_field])
     target_names = le.classes_
 
-    #Specimen names
+    #Specimen names and break numbers
     specimens = df['Specimen'].values
+    break_numbers = df['BreakNo'].values
 
-    return data,target,specimens,target_names
+    return data,target,specimens,break_numbers,target_names
 
 def sample_inventory(fields):
     """Sample Inventory
