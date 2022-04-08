@@ -22,7 +22,7 @@ def getaccuracyGL(x):
     accuracy = gl.ssl.ssl_accuracy(pred_labels, target, len(train_ind))
     return accuracy
 #We will list percentages of training data from 5% to 75%. We will run each percentage 500 times, and get the average of those 500 trials.
-sys.stdout = open('gbl_ml_accuracies_angular.csv', 'w')
+sys.stdout = open('results/gbl_ml_accuracies_angular.csv', 'w')
 x = 0
 print('Percentage_Training_Data', end = ', ')
 for i in range(500):
@@ -40,7 +40,7 @@ for i in range(15):
     print(avgAcc/500.0, end = '')
     print('')
 sys.stdout.close()
-sys.stdout = open('gbl_ml_accuracies_euclidean.csv', 'w')
+sys.stdout = open('results/gbl_ml_accuracies_euclidean.csv', 'w')
 W = gl.weightmatrix.knn(data,10)
 x = 0
 print('Percentage_Training_Data', end = ', ')
