@@ -40,6 +40,25 @@ for i in range(15):
     print(avgAcc/500.0, end = '')
     print('')
 sys.stdout.close()
+sys.stdout = open('results/gbl_ml_accuracies_euclidean.csv', 'w')
+W = gl.weightmatrix.knn(data,10)
+x = 0
+print('Percentage_Training_Data', end = ', ')
+for i in range(500):
+    print('Trial %d'%(i+1), end = ', ')
+print('Average_Accuracy')
+for i in range(15):
+    avgAcc = 0
+    x += 0.05
+    x = round(x, 2)
+    print(x, end = ', ')
+    for i in range(500):
+        acc = getaccuracyGL(x)
+        avgAcc += acc
+        print(acc, end = ', ')
+    print(avgAcc/500.0, end = '')
+    print('')
+sys.stdout.close()
 
 
 
