@@ -10,7 +10,7 @@ num_features = data.shape[1]
 num_classes = np.max(target)+1
 
 model = Net(structure=[num_features,100,1000,5000], num_classes=num_classes,
-            batch_normalization=False, dropout_rate=0.0)
+            batch_normalization=False, dropout_rate=0.4)
 
 T = 100
 avg_acc = 0
