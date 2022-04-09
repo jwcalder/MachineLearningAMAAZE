@@ -24,6 +24,7 @@ plt.ion()
 plt.scatter(vec[:,1], vec[:, 2], c = target)
 plt.savefig('/Users/EricChen/Documents/Python/realdataplot.jpg')
 plt.figure()
+
 ax = plt.axes(projection ="3d")
 ax.scatter3D(vec[:,1],vec[:,2],vec[:,3],c=target,s=10)
 for angle in range(0, 360):
