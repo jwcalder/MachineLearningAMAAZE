@@ -11,13 +11,14 @@ import matplotlib.pyplot as plt
 from scipy import spatial
 import os,sys
 import pandas as pd
-
+import statistics
 
 #Put all possible directory locations here
 data_dirs = ['/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/',
              '/Users/jeff/Moclan/Paper3_MoclanReplicationPaper/',
              '/data/ML_data/',
-             '/home/jeff/Dropbox/Work/AMAAZE/csv_files/']
+             '/home/jeff/Dropbox/Work/AMAAZE/csv_files/',
+             'C:\\Users\\artif\\Documents\\University\\AMAAZE\\GitHub CSVs']
 
 break_level_fields_numerical = ['Count',
                                 'Mean',
@@ -354,7 +355,7 @@ def tsp_order(x,y,z):
 
 
 class Net(nn.Module):
-    def __init__(self, structure=[10,10], num_classes=2, dropout_rate=0.5, batch_normalization=True):
+    def __init__(self, structure=[10,10], num_classes=2, dropout_rate=0.5, batch_normalization=False):
         """Neural Network Classifier
         ========
 
@@ -571,4 +572,99 @@ def plot_curve(x,y,z,idx,break_num):
     ax.set_title('Break %d'%break_num)
 
 
+def train_test_split(data, target, specimens, percent_test = 0.25):
+    """Train Test Split
+    ========
+    
+    Converts the data and target arrays into training and testing datasets.
+    Splits on specimen with the desired percentage of them in the testing dataset. 
+    This will fail if the inputs aren't in the same order. 
+    
+    Parameters
+    ----------
+    data : numpy array (float)
+        Features.
+    target : numpy array (int)
+        Targets as integers
+    specimens : numpy array (string)
+        List of specimen names.
+    percent_test : float (optional), default = 0.1
+        The percentage of the dataset that goes into the training dataset.
+    
+    Returns
+    -------
+    data_train : numpy array (float)
+        Features in the train dataset.
+    target_train : numpy array (int)
+        Train targets as integers.
+    data_test : numpy array (float)
+        Features in the test dataset.
+    target_test : numpy array (int)
+        Test Targets as integers.
+    frag_test : numpy array (string)
+        Fragment names used for final voting.
+    """
+    
+    # Create our list of frags
+    fragments = np.unique(specimens)
+    # Choose which ones go into our test set
+    test_size = max(1, round(fragments.size * percent_test))
+    testing_fragments = np.random.choice(fragments,size = test_size)
+    
+    # Set up the training and testing datasets    
+    data_train = []
+    target_train = []
+    data_test = []
+    target_test = []
+    frag_test = []
+    
+    # Split the dataset
+    for i, frag in enumerate(specimens):
+        if frag in testing_fragments:
+            data_test.append(data[i])
+            target_test.append(target[i])
+            frag_test.append(frag)
+        else:
+            data_train.append(data[i])
+            target_train.append(target[i])
+    
+    return np.array(data_train), np.array(target_train), np.array(data_test), np.array(target_test), np.array(frag_test)
 
+def specimen_voting(target_output, target_test, frag_test):
+    """Train Test Split
+    ========
+    
+    Compares outputted targets to their true labels, and votes within specimens.
+    
+    Parameters
+    ----------
+    target_output : numpy array (int)
+        The outputted targets.
+    target_test : numpy array (int)
+        True targets.
+    frag_test : numpy array (string)
+        List of specimen names.
+    
+    Returns
+    -------
+    accuracy : float
+        The percent accuracy of the outputted targets to true labels.
+    """
+    
+    # Populate the dictionary with truth values
+    voting = {}
+    for i, frag in enumerate(frag_test):
+        voting[frag] = {"Truth" : target_test[i], "Votes" : [], "Guess" : None}
+    
+    # Add in the votes
+    for i, output in enumerate(target_output):
+        voting[frag_test[i]]["Votes"].append(output)
+    
+    # Total and sum accuracy
+    correct = 0
+    for frag in voting.keys():
+        voting[frag]["Guess"] = statistics.mode(voting[frag]["Votes"])
+        if(voting[frag]["Guess"] == voting[frag]["Truth"]):
+            correct += 1
+    
+    return correct / len(voting.keys())
