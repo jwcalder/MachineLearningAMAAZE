@@ -80,7 +80,7 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
     return (data, target, test_name)
 
 
-def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 25):
+def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 25, n_jobs=1):
     """Moclan Dataset
     ========
 
@@ -98,15 +98,17 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
         Holds the results of previous tests
     reps : int (optional), default = 300
         How many k-fold replications you want to do.
-    folds : int
+    folds : int, default=10
         How many folds to use in k-fold replications.
-    k : int
+    k : int (optional), default=25
         The number of k-nearest neighbors used in k-nearest neighbors classification
+    n_jobs : int (optional), default=1
+        Number of jobs to run in parallel.
 
     Returns
     -------
     results : python dictionary
-        dictionary that contains all the results. 
+        dictionary that contains results of current test.
     """
     
     ### Set-up
@@ -119,36 +121,34 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
     ### The Tests
     # Random Forests
     rf = RandomForestClassifier()
-    rf_acc = 100*cross_val_score(rf, data, target, cv = cv, scoring = 'accuracy')
+    rf_acc = 100*cross_val_score(rf, data, target, cv = cv, scoring = 'accuracy', n_jobs=n_jobs)
     r["Results"]["Random Forest"] = {"accuracy" : np.mean(rf_acc), "std" : np.std(rf_acc)}
     
     # Support Vector Machines
     clfsvm = SVC(kernel ="linear", max_iter = 5000)
     scalar = StandardScaler() # SVM works best with standard scaled data
     pipeline = Pipeline([('transformer', scalar), ('estimator', clfsvm)]) # That's what this does, in a safe manner
-    svm_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring = 'accuracy')
+    svm_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring = 'accuracy', n_jobs=n_jobs)
     r["Results"]["Linear SVM"] = {"accuracy" : np.mean(svm_acc), "std" : np.std(svm_acc)}
 
     # LDA
     clfLDA = LinearDiscriminantAnalysis()
-    lda_acc = 100*cross_val_score(clfLDA, data, target, cv = cv, scoring='accuracy')
+    lda_acc = 100*cross_val_score(clfLDA, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
     r["Results"]["LDA"] = {"accuracy" : np.mean(lda_acc), "std" : np.std(lda_acc)}
 
     # Naive Bayes
     clfgnb = GaussianNB()
-    gnb_acc = 100*cross_val_score(clfgnb, data, target, cv = cv, scoring='accuracy')
+    gnb_acc = 100*cross_val_score(clfgnb, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
     r["Results"]["GNB"] = {"accuracy" : np.mean(gnb_acc), "std" : np.std(gnb_acc)}
 
     # KNN
     clfknn= KNeighborsClassifier(n_neighbors = k)
     scalar = StandardScaler()
     pipeline = Pipeline([('transformer', scalar), ('estimator', clfknn)])
-    knn_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring='accuracy')
+    knn_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
     r["Results"]["KNN"] = {"accuracy" : np.mean(knn_acc), "std" : np.std(knn_acc)}
     
-    results[test_name] = r
-    
-    return results
+    return r
 
 def save_results(results, fname = "Moclan_Replications.csv"):
     """Moclan Dataset
@@ -195,6 +195,12 @@ def main():
     
     for i in range(len(tests)):
         data, target, name = moclan_dataset(dataset=tests[i], bootstrap = bootstrap[i], bootstrap_num = bootstrap_rep[i])
-        results = run_test(data, target, test_name = name, k = k[i])
+        results[name] = run_test(data, target, test_name = name, k = k[i], n_jobs=24)
     
     save_results(results)
+
+
+if __name__ == '__main__':
+    main()
+
+
