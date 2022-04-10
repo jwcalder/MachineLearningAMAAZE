@@ -83,7 +83,7 @@ def run_test(data, target, specimens, test_name, results = {}, reps = 300):
     rf_acc = []
     svmL_acc = []
     svmRBF_acc = []
-    # nn_acc = []
+    nn_acc = []
     lda_acc = []
     gnb_acc = []
     knn_acc = []
@@ -121,11 +121,15 @@ def run_test(data, target, specimens, test_name, results = {}, reps = 300):
         svmRBF_acc.append(acc)
         
         # Neural Network
-        # nn = utils.Net()
-        # nn.fit(data_train, target_train)
-        # nn_pred = nn.predict(data_test)
-        # acc = utils.specimen_voting(nn_pred, target_test, frag_test)
-        # nn_acc.append(acc)
+        num_features = data.shape[1]
+        num_classes = np.max(target)+1
+        nn = utils.Net(structure=[num_features,100,1000,5000], num_classes=num_classes,
+                       dropout_rate=0.4,epochs=100,learning_rate=1,cuda=True)
+        nn_scalar = preprocessing.StandardScaler().fit(data_train)  # Scaling data
+        nn.fit(nn_scalar.transform(data_train), target_train)
+        nn_pred = nn.predict(nn_scalar.transform(data_test))
+        acc = utils.specimen_voting(nn_pred, target_test, frag_test)
+        nn_acc.append(acc)
         
         # LDA
         clfLDA = LinearDiscriminantAnalysis()
@@ -153,7 +157,7 @@ def run_test(data, target, specimens, test_name, results = {}, reps = 300):
     r["Results"]["Random Forest"] = {"accuracy" : np.mean(rf_acc), "std" : np.std(rf_acc)}
     r["Results"]["SVM - Linear"] = {"accuracy" : np.mean(svmL_acc), "std" : np.std(svmL_acc)}
     r["Results"]["SVM - RBF"] = {"accuracy" : np.mean(svmRBF_acc), "std" : np.std(svmRBF_acc)}
-    # r["Results"]["Neural Network"] = {"accuracy" : np.mean(nn_acc), "std" : np.std(nn_acc)}
+    r["Results"]["Neural Network"] = {"accuracy" : np.mean(nn_acc), "std" : np.std(nn_acc)}
     r["Results"]["LDA"] = {"accuracy" : np.mean(lda_acc), "std" : np.std(lda_acc)}
     r["Results"]["Naive Bayes"] = {"accuracy" : np.mean(gnb_acc), "std" : np.std(gnb_acc)}
     r["Results"]["KNN"] = {"accuracy" : np.mean(knn_acc), "std" : np.std(knn_acc)}
@@ -200,3 +204,8 @@ def main():
         results = run_test(data, target, specimens, test)
     
     save_results(results)
+
+
+if __name__ == '__main__':
+    main()
+

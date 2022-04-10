@@ -13,6 +13,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+from utils import Net
 
 
 def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
@@ -147,7 +148,16 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
     pipeline = Pipeline([('transformer', scalar), ('estimator', clfknn)])
     knn_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
     r["Results"]["KNN"] = {"accuracy" : np.mean(knn_acc), "std" : np.std(knn_acc)}
-    
+
+    #Neural Networks
+    num_features = data.shape[1]
+    num_classes = np.max(target)+1
+    clfNet = Net(structure=[num_features,100,200,400], num_classes=num_classes)
+    scalar = StandardScaler()
+    pipeline = Pipeline([('transformer', scalar), ('estimator', clfNet)])
+    Net_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
+    r["Results"]["NeuralNet"] = {"accuracy" : np.mean(Net_acc), "std" : np.std(Net_acc)}
+
     return r
 
 def save_results(results, fname = "Moclan_Replications.csv"):

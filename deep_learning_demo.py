@@ -10,7 +10,8 @@ num_features = data.shape[1]
 num_classes = np.max(target)+1
 
 model = Net(structure=[num_features,100,1000,5000], num_classes=num_classes,
-            batch_normalization=False, dropout_rate=0.4)
+            batch_normalization=False, dropout_rate=0.4,epochs=100, batch_size=32, 
+            learning_rate=1)
 
 T = 100
 avg_acc = 0
@@ -24,7 +25,7 @@ for i in range(1,T+1):
     data_train = scaler.transform(data_train)
     data_test = scaler.transform(data_test)
 
-    model.fit(data_train, target_train, epochs=100, batch_size=32, learning_rate=1)
+    model.fit(data_train, target_train)
 
     pred = model.predict(data_test)
     acc = accuracy_score(pred,target_test)

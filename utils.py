@@ -355,7 +355,8 @@ def tsp_order(x,y,z):
 
 
 class Net(nn.Module):
-    def __init__(self, structure=[10,10], num_classes=2, dropout_rate=0.5, batch_normalization=False):
+    def __init__(self, structure=[10,10], num_classes=2, dropout_rate=0.0, batch_normalization=False,
+                 epochs=100, cuda=False, learning_rate=0.1,batch_size=32, gamma=0.9, verbose=False):
         """Neural Network Classifier
         ========
 
@@ -369,16 +370,37 @@ class Net(nn.Module):
              and 10 nerons in the first layer.
         num_classes : int (optional)
             Number of classes.
-        dropout_rate : float (optional), default=0.5
+        dropout_rate : float (optional), default=0
             Dropout rate.
         batch_normalization : bool (optional), default=True
             Whether to apply batch normalization.
+        epochs : int (optional), default=100
+            Number of training epochs (loops over whole dataset).
+        cuda : bool (optional), default=False
+            Whether to use GPU, if found.
+        learning_rate : float (optional), default = 0.1
+            Learning rate for training.
+        batch_size : int (optional), default = 32
+            Size of mini-batches for stochastic gradient descent.
+        gamma : float (optional), default = 0.9
+            Scheduler parameter. How much to decrease learning rate at each iteration.
+        verbose : bool (optional), default = False
+            Whether to print out details during training or not.
         """
 
         super(Net, self).__init__()
 
-        self.batch_normalization = batch_normalization
+        self.structure = structure
+        self.num_classes = num_classes
         self.dropout_rate = dropout_rate
+        self.batch_normalization = batch_normalization
+        self.epochs = epochs
+        self.cuda = cuda
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
+        self.gamma = gamma
+        self.verbose = verbose
+
         self.num_layers = len(structure)-1
         self.fc = nn.ModuleList()
         self.bn = nn.ModuleList()
@@ -388,6 +410,18 @@ class Net(nn.Module):
         self.final = nn.Linear(structure[self.num_layers],num_classes)
 
         self.dropout = nn.Dropout(dropout_rate)
+
+    def get_params(self, deep=True):
+        return {'structure':self.structure,
+                'num_classes':self.num_classes,
+                'dropout_rate':self.dropout_rate,
+                'batch_normalization':self.batch_normalization,
+                'epochs':self.epochs,
+                'cuda':self.cuda,
+                'learning_rate':self.learning_rate,
+                'batch_size':self.batch_size,
+                'gamma':self.gamma,
+                'verbose':self.verbose}
 
     def reset(self):
 
@@ -411,8 +445,7 @@ class Net(nn.Module):
         output = F.log_softmax(x, dim=1)
         return output
 
-    def fit(self, data, target, epochs=100, cuda=True, learning_rate=0.1, 
-            batch_size=32, gamma=0.9, verbose=False):
+    def fit(self, data, target):
         """Fit
         ========
 
@@ -424,18 +457,6 @@ class Net(nn.Module):
             Features
         target : numpy array (int)
             Labels.
-        epochs : int (optional), default=100
-            Number of training epochs (loops over whole dataset).
-        cuda : bool (optional), default=True
-            Whether to use GPU, if found.
-        learning_rate : float (optional), defualt = 0.1
-            Learning rate for training.
-        batch_size : int (optional), default = 32
-            Size of mini-batches for stochastic gradient descent.
-        gamma : float (optional), default = 0.9
-            Scheduler parameter. How much to decrease learning rate at each iteration.
-        verbose : bool (optional), default = False
-            Whether to print out details during training or not.
         """
 
         #Reset weights
@@ -446,8 +467,8 @@ class Net(nn.Module):
         target = torch.from_numpy(target).long()
 
         #Cuda (GPU)
-        use_cuda = cuda and torch.cuda.is_available()
-        if verbose:
+        use_cuda = self.cuda and torch.cuda.is_available()
+        if self.verbose:
             if use_cuda:
                 print("Using GPU!")
             else:
@@ -456,13 +477,13 @@ class Net(nn.Module):
         self.to(device)
 
         #Optimizer and scheduler
-        optimizer = optim.Adadelta(self.parameters(), lr=learning_rate)
-        scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+        optimizer = optim.Adadelta(self.parameters(), lr=self.learning_rate)
+        scheduler = StepLR(optimizer, step_size=1, gamma=self.gamma)
 
-        for epoch in range(1, epochs + 1):
-            if verbose:
+        for epoch in range(1, self.epochs + 1):
+            if self.verbose:
                 print('\nEpoch: %d'%epoch)
-            self.train_epoch(device, data, target, optimizer, epoch, batch_size, verbose)
+            self.train_epoch(device, data, target, optimizer, epoch, self.batch_size, self.verbose)
             scheduler.step()
 
     def train_epoch(self, device, data, target, optimizer, epoch, batch_size, verbose):
@@ -609,7 +630,7 @@ def train_test_split(data, target, specimens, percent_test = 0.25):
     fragments = np.unique(specimens)
     # Choose which ones go into our test set
     test_size = max(1, round(fragments.size * percent_test))
-    testing_fragments = np.random.choice(fragments,size = test_size)
+    testing_fragments = np.random.choice(fragments,size = test_size, replace=False)
     
     # Set up the training and testing datasets    
     data_train = []
