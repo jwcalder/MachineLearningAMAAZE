@@ -16,7 +16,7 @@ from sklearn.svm import SVC
 from utils import Net
 
 
-def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
+def moclan_dataset(bootstrap=False, bootstrap_num=1, level = 'moclan', dataset='moclan'):
     """Moclan Dataset
     ========
 
@@ -28,10 +28,14 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
         Determines whether a bootstrap is to be used.
     bootstrap_num : integer (optional), default = 1
         Determines how many additional bootstrap samples are to be added.
-    dataset : string (optional), default = 'moclan'
-        Selects the input features to include in data. 
+    level : string (optional), default = 'moclan'
+        Selects the level of input features to include in data. 
         "moclan" includes all of the features.
         "breaks" includes only the break level features of angle and feature_plane
+    dataset : string(optional", default = 'moclan')
+        Selects the dataset to be used.
+        "moclan" has all three effector levels, which is heavily unbalanced
+        "carngrouped" has two effector levels, humans vs. carnivores
 
     Returns
     -------
@@ -42,10 +46,16 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
     test_name : string
         Name of the test.
     """
-
-    df = pd.read_csv('moclan.csv')
     
-    test_name = dataset
+    test_name = level
+    df = None
+    if(dataset == "moclan"):
+        df = pd.read_csv('moclan.csv')
+    elif(dataset == "carngrouped"):
+        df = pd.read_csv('moclan_carngrouped.csv')
+        test_name = test_name + "_" + dataset
+    else:
+        raise ValueError("dataset must be 'moclan' or 'carngrouped'")
     
     if(bootstrap):
         test_name = test_name + "_bootstrap_" + str(bootstrap_num)
@@ -56,7 +66,7 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
     target = le.fit_transform(df['Agent'])
     data = None
     
-    if(dataset == "moclan"):
+    if(level == "moclan"):
         num_data = df[['Length(mm)','Angle']].values
         cat_data = df[['Epiphysis', 'Number_of_planes', 'Type_of_angle', 
                        'Notch', 'Notch_a', 'Notch_c', 'Notch_d', 
@@ -67,7 +77,7 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
         cat_data = le.fit_transform(cat_data)
         
         data = np.hstack((cat_data, num_data))
-    elif(dataset == "breaks"):
+    elif(level == "breaks"):
         num_data = df[['Angle']].values 
         cat_data = df[['Fracture_plane']]
         
@@ -76,7 +86,7 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, dataset='moclan'):
         
         data = np.hstack((cat_data, num_data))
     else:
-        raise ValueError("dataset must be 'moclan' or 'breaks'")
+        raise ValueError("level must be 'moclan' or 'breaks'")
         
     return (data, target, test_name)
 
@@ -181,13 +191,14 @@ def save_results(results, fname = "Moclan_Replications.csv"):
             test_name = results[test]["Test"]
             reps = results[test]["reps"]
             folds = results[test]["folds"]
-            writer.writerow([test_name, "Reps: " + str(reps), "Folds: " + str(folds)])
+            writer.writerow(["Test: " + test_name, "Reps: " + str(reps), "Folds: " + str(folds)])
             writer.writerow(["Algorithm", "Mean Accuracy", "Standard Deviation"])
             for algo in results[test]["Results"].keys():
                 name = algo
                 acc = results[test]["Results"][algo]["accuracy"]
                 std = results[test]["Results"][algo]["std"]
                 writer.writerow([name, acc, std])
+            writer.writerow([])
     
 def main():
     
@@ -197,14 +208,15 @@ def main():
     Runs the stated battery of replication tests. 
     
     """
-    tests = ["moclan", "moclan", "breaks"]
-    bootstrap = [True, False, False]
-    bootstrap_rep = [1000, 0, 0]
-    k = [1, 25, 25] # k = 1 works best when bootstrapping
+    tests = ["moclan", "moclan", "breaks", "breaks"]
+    dataset = ["moclan", "moclan", "moclan", "carngrouped"]
+    bootstrap = [True, False, False, False]
+    bootstrap_rep = [1000, 0, 0, 0]
+    k = [1, 25, 25, 25] # k = 1 works best when bootstrapping
     results = {}
     
     for i in range(len(tests)):
-        data, target, name = moclan_dataset(dataset=tests[i], bootstrap = bootstrap[i], bootstrap_num = bootstrap_rep[i])
+        data, target, name = moclan_dataset(level=tests[i], dataset = dataset[i] , bootstrap = bootstrap[i], bootstrap_num = bootstrap_rep[i])
         results[name] = run_test(data, target, test_name = name, k = k[i], n_jobs=24)
     
     save_results(results)
