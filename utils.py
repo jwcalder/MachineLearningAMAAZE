@@ -649,7 +649,29 @@ def train_test_split(data, target, specimens, percent_test = 0.25):
             data_train.append(data[i])
             target_train.append(target[i])
     
-    return np.array(data_train), np.array(target_train), np.array(data_test), np.array(target_test), np.array(frag_test)
+    # Swap to numpy arrays
+    data_train = np.array(data_train)
+    target_train = np.array(target_train)
+    data_test = np.array(data_test)
+    target_test = np.array(target_test)
+    frag_test = np.array(frag_test)
+    
+    # Because we vote, we need to randomize the order of the data.
+    # This is important because we use the statistics.mode function to compute
+    # the voting, which uses the first vote if the result is tied (we only have
+    # two classes). 
+    
+    # This means that the order that the data is input to the algorithm
+    # actually matters. Thus, the randomization protects us from some basic
+    # statistical errors. This code ensures that the train and test set are 
+    # both randomized (while preserving the ordering within the targets and data)
+    train_perm_size = len(data_train)
+    test_perm_size = len(data_test)
+    
+    train_perm = np.random.permutation(train_perm_size)
+    test_perm = np.random.permutation(test_perm_size)
+    
+    return data_train[train_perm], target_train[train_perm], data_test[test_perm], target_test[test_perm], frag_test[test_perm]
 
 def specimen_voting(target_output, target_test, frag_test):
     """Train Test Split
@@ -684,6 +706,7 @@ def specimen_voting(target_output, target_test, frag_test):
     # Total and sum accuracy
     correct = 0
     for frag in voting.keys():
+        # We use the statistical mode to 'vote' for the fragment classifer
         voting[frag]["Guess"] = statistics.mode(voting[frag]["Votes"])
         if(voting[frag]["Guess"] == voting[frag]["Truth"]):
             correct += 1
