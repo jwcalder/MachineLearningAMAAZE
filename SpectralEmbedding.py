@@ -6,7 +6,7 @@ from utils import frag_level_ml_dataset
 
 data,target,specimens,target_names = frag_level_ml_dataset()
 
-#Look at Spectral Embedding.
+#Accuracy calculation for spectral clustering
 
 from sklearn import preprocessing
 data = preprocessing.StandardScaler().fit_transform(data)
@@ -15,24 +15,25 @@ W = gl.weightmatrix.knn(data,10)
 
 avgAcc = 0
 for i in range(100):
-  model = gl.clustering.spectral(W,num_clusters = 5,method='NgJordanWeiss')
+  model = gl.clustering.spectral(W,num_clusters = 2,method='NgJordanWeiss')
 
   pred_labels= model.fit_predict()
   accuracy = gl.clustering.clustering_accuracy(pred_labels,target)
   avgAcc += accuracy
 print(avgAcc/100.0)
 
+#Creating graphs from spectral embedding
 G = gl.graph(W)
 vals,vec = G.eigen_decomp(normalization = 'normalized')
 
+#2D graph
 plt.scatter(vec[:,1], vec[:, 2], c = target)
-plt.savefig('figures/spectral_embedding')
-
+plt.savefig('figures/spectral_embedding_2D')
 plt.show()
 
-#ax = plt.axes(projection ="3d")
-#ax.scatter3D(vec[:,1],vec[:,2],vec[:,3],c=target,s=10)
-#for angle in range(0, 360):
-  #ax.view_init(30, angle)
-  #plt.draw()
-  #plt.pause(.001)
+#3D graph
+ax = plt.axes(projection ="3d")
+ax.scatter3D(vec[:,1],vec[:,2],vec[:,3],c=target,s=10)
+ax.view_init(30, 60)
+plt.savefig('figures/spectral_embedding_3D')
+plt.show()
