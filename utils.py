@@ -6,12 +6,12 @@ from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import amaazetools.trimesh as tm
 from sklearn import preprocessing
+from sklearn.utils import shuffle
 import pickle
 import matplotlib.pyplot as plt
 from scipy import spatial
 import os,sys
 import pandas as pd
-import statistics
 
 #Put all possible directory locations here
 data_dirs = ['/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/',
@@ -656,22 +656,12 @@ def train_test_split(data, target, specimens, percent_test = 0.25):
     target_test = np.array(target_test)
     frag_test = np.array(frag_test)
     
-    # Because we vote, we need to randomize the order of the data.
-    # This is important because we use the statistics.mode function to compute
-    # the voting, which uses the first vote if the result is tied (we only have
-    # two classes). 
+    # Randomization of the order of the data is just a good practice
+
+    # data_train, target_train = shuffle(data_train, target_train)
+    # data_test, target_test, frag_test = shuffle(data_test, target_test, frag_test)
     
-    # This means that the order that the data is input to the algorithm
-    # actually matters. Thus, the randomization protects us from some basic
-    # statistical errors. This code ensures that the train and test set are 
-    # both randomized (while preserving the ordering within the targets and data)
-    train_perm_size = len(data_train)
-    test_perm_size = len(data_test)
-    
-    train_perm = np.random.permutation(train_perm_size)
-    test_perm = np.random.permutation(test_perm_size)
-    
-    return data_train[train_perm], target_train[train_perm], data_test[test_perm], target_test[test_perm], frag_test[test_perm]
+    return data_train, target_train, data_test, target_test, frag_test
 
 def specimen_voting(target_output, target_test, frag_test):
     """Train Test Split
@@ -690,25 +680,30 @@ def specimen_voting(target_output, target_test, frag_test):
     
     Returns
     -------
-    accuracy : float
-        The percent accuracy of the outputted targets to true labels.
+    voting : dictionary
+        Contains each fragment, its true label, and the guess from voting
     """
     
     # Populate the dictionary with truth values
-    voting = {}
+    voting = {"frags": {}}
     for i, frag in enumerate(frag_test):
-        voting[frag] = {"Truth" : target_test[i], "Votes" : [], "Guess" : None}
+        voting["frags"][frag] = {"Truth" : target_test[i], "Votes" : [], "Guess" : None}
     
     # Add in the votes
     for i, output in enumerate(target_output):
-        voting[frag_test[i]]["Votes"].append(output)
+        voting["frags"][frag_test[i]]["Votes"].append(output)
     
     # Total and sum accuracy
     correct = 0
-    for frag in voting.keys():
-        # We use the statistical mode to 'vote' for the fragment classifer
-        voting[frag]["Guess"] = statistics.mode(voting[frag]["Votes"])
-        if(voting[frag]["Guess"] == voting[frag]["Truth"]):
+    predictions = []
+    for frag in voting["frags"].keys():
+        # This helps shake up the votes
+        vote = np.argmax(np.bincount(voting["frags"][frag]["Votes"]) + 1e-6*np.random.rand(1,1))
+        voting["frags"][frag]["Guess"] = vote
+        predictions.append(voting["frags"][frag]["Guess"])
+        if(voting["frags"][frag]["Guess"] == voting["frags"][frag]["Truth"]):
             correct += 1
     
-    return correct / len(voting.keys())
+    voting["Mean Accuracy"] = correct / len(voting["frags"].keys())
+
+    return voting

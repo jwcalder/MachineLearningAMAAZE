@@ -5,7 +5,7 @@ from warnings import simplefilter
 from sklearn import preprocessing
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.model_selection import RepeatedKFold
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
@@ -14,7 +14,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from utils import Net
-
 
 def moclan_dataset(bootstrap=False, bootstrap_num=1, level = 'moclan', dataset='moclan'):
     """Moclan Dataset
@@ -91,7 +90,7 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, level = 'moclan', dataset='
     return (data, target, test_name)
 
 
-def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 25, n_jobs=1):
+def run_test(data, target, test_name, rf_np = False, reps = 300, folds = 10, k = 25, n_jobs=1):
     """Moclan Dataset
     ========
 
@@ -105,8 +104,8 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
         Targets.
     test_name : string
         Name of the test.
-    results : python dictionary (optional), default = {}
-        Holds the results of previous tests
+    rf_np : boolean (optional), default = False
+        If you want to run an additional bootstrapless random forest model
     reps : int (optional), default = 300
         How many k-fold replications you want to do.
     folds : int, default=10
@@ -118,7 +117,7 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
 
     Returns
     -------
-    results : python dictionary
+    r : python dictionary
         dictionary that contains results of current test.
     """
     
@@ -167,7 +166,13 @@ def run_test(data, target, test_name, results = {}, reps = 300, folds = 10, k = 
     pipeline = Pipeline([('transformer', scalar), ('estimator', clfNet)])
     Net_acc = 100*cross_val_score(pipeline, data, target, cv = cv, scoring='accuracy', n_jobs=n_jobs)
     r["Results"]["NeuralNet"] = {"accuracy" : np.mean(Net_acc), "std" : np.std(Net_acc)}
-
+    
+    # Random Forest no bootstrap
+    if(rf_np):
+        rf_np = RandomForestClassifier(bootstrap = False)
+        rf_np_acc = 100*cross_val_score(rf, data, target, cv = cv, scoring = 'accuracy', n_jobs=n_jobs)
+        r["Results"]["Random Forest (no bootstrap)"] = {"accuracy" : np.mean(rf_np_acc), "std" : np.std(rf_np_acc)}
+    
     return r
 
 def save_results(results, fname = "Moclan_Replications.csv"):
@@ -184,7 +189,7 @@ def save_results(results, fname = "Moclan_Replications.csv"):
         Name of the file that the results are saved to
 
     """
-    
+    fname = "./results/"+fname
     with open(fname, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for test in results.keys():
