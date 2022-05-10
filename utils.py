@@ -685,8 +685,9 @@ def specimen_voting(target_output, target_test, frag_test):
     """
     
     # Populate the dictionary with truth values
+    unique_frags = list(set(frag_test))
     voting = {"frags": {}}
-    for i, frag in enumerate(frag_test):
+    for i, frag in enumerate(unique_frags):
         voting["frags"][frag] = {"Truth" : target_test[i], "Votes" : [], "Guess" : None}
     
     # Add in the votes
@@ -695,15 +696,13 @@ def specimen_voting(target_output, target_test, frag_test):
     
     # Total and sum accuracy
     correct = 0
-    predictions = []
     for frag in voting["frags"].keys():
         # This helps shake up the votes
         vote = np.argmax(np.bincount(voting["frags"][frag]["Votes"]) + 1e-6*np.random.rand(1,1))
         voting["frags"][frag]["Guess"] = vote
-        predictions.append(voting["frags"][frag]["Guess"])
         if(voting["frags"][frag]["Guess"] == voting["frags"][frag]["Truth"]):
             correct += 1
-    
+
     voting["Mean Accuracy"] = correct / len(voting["frags"].keys())
 
     return voting
