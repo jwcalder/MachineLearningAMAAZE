@@ -290,14 +290,14 @@ def run_test(data, target, specimens, test_name, results={}, reps=300, rf_nb = F
         breaks_rf_nb_cm = confusion_matrix(breaks_target_truth, breaks_rf_nb_target_pred)
         r["Results"]["Random Forest (no bootstrap)"] = {"accuracy": np.mean(rf_nb_acc), "std": np.std(rf_nb_acc), "iter accuracy": rf_nb_acc, "vote pred": rf_nb_target_pred, "component vote pred": breaks_rf_nb_target_pred, "confusion matrix": rf_nb_cm, "component confusion matrix": breaks_rf_nb_cm}
     
-    r["Results"]["Random Forest"] = {"accuracy": np.mean(rf_acc), "std": np.std(rf_acc), "iter accuracy": rf_acc, "vote pred":  rf_target_pred, "component vote pred": breaks_rf_nb_target_pred, "confusion matrix": rf_cm, "component confusion matrix": breaks_rf_cm}
-    r["Results"]["Extra Trees"] = {"accuracy": np.mean(et_acc), "std": np.std(et_acc), "iter accuracy": et_acc, "vote pred": et_target_pred, "component vote pred": breaks_rf_nb_target_pred,"confusion matrix": et_cm, "component confusion matrix": breaks_et_cm}
-    r["Results"]["SVM - linear"] = {"accuracy": np.mean(svmL_acc), "std": np.std(svmL_acc), "iter accuracy": svmL_acc, "vote pred": svmL_target_pred, "component vote pred": breaks_rf_nb_target_pred,"confusion matrix": svmL_cm, "component confusion matrix": breaks_svmL_cm}
-    r["Results"]["SVM - RBF"] = {"accuracy": np.mean(svmRBF_acc), "std": np.std(svmRBF_acc), "iter accuracy": svmRBF_acc, "vote pred": svmRBF_target_pred, "component vote pred": breaks_rf_nb_target_pred, "confusion matrix": svmRBF_cm, "component confusion matrix": breaks_svmRBF_cm}
-    r["Results"]["Neural Network"] = {"accuracy": np.mean(nn_acc), "std": np.std(nn_acc), "iter accuracy": nn_acc, "iter pred": nn_target_pred, "confusion matrix": nn_cm, "component confusion matrix": breaks_nn_cm}
-    r["Results"]["LDA"] = {"accuracy": np.mean(lda_acc), "std": np.std(lda_acc), "iter accuracy": lda_acc, "vote pred": lda_target_pred, "component vote pred": breaks_rf_nb_target_pred,"confusion matrix": lda_cm, "component confusion matrix": breaks_lda_cm}
-    r["Results"]["Naive Bayes"] = {"accuracy": np.mean(gnb_acc), "std": np.std(gnb_acc), "iter accuracy": gnb_acc, "vote pred": gnb_target_pred, "component vote pred": breaks_rf_nb_target_pred, "confusion matrix": gnb_cm, "component confusion matrix": breaks_gnb_cm}
-    r["Results"]["KNN"] = {"accuracy": np.mean(knn_acc), "std": np.std(knn_acc), "iter accuracy": knn_acc, "vote pred": knn_target_pred, "component vote pred": breaks_rf_nb_target_pred, "confusion matrix": knn_cm, "component confusion matrix": breaks_knn_cm}
+    r["Results"]["Random Forest"] = {"accuracy": np.mean(rf_acc), "std": np.std(rf_acc), "iter accuracy": rf_acc, "vote pred":  rf_target_pred, "component vote pred": breaks_rf_target_pred, "confusion matrix": rf_cm, "component confusion matrix": breaks_rf_cm}
+    r["Results"]["Extra Trees"] = {"accuracy": np.mean(et_acc), "std": np.std(et_acc), "iter accuracy": et_acc, "vote pred": et_target_pred, "component vote pred": breaks_et_target_pred,"confusion matrix": et_cm, "component confusion matrix": breaks_et_cm}
+    r["Results"]["SVM - linear"] = {"accuracy": np.mean(svmL_acc), "std": np.std(svmL_acc), "iter accuracy": svmL_acc, "vote pred": svmL_target_pred, "component vote pred": breaks_svmL_target_pred,"confusion matrix": svmL_cm, "component confusion matrix": breaks_svmL_cm}
+    r["Results"]["SVM - RBF"] = {"accuracy": np.mean(svmRBF_acc), "std": np.std(svmRBF_acc), "iter accuracy": svmRBF_acc, "vote pred": svmRBF_target_pred, "component vote pred": breaks_svmRBF_target_pred, "confusion matrix": svmRBF_cm, "component confusion matrix": breaks_svmRBF_cm}
+    r["Results"]["Neural Network"] = {"accuracy": np.mean(nn_acc), "std": np.std(nn_acc), "iter accuracy": nn_acc, "vote pred": nn_target_pred, "component vote pred": breaks_nn_target_pred, "confusion matrix": nn_cm, "component confusion matrix": breaks_nn_cm}
+    r["Results"]["LDA"] = {"accuracy": np.mean(lda_acc), "std": np.std(lda_acc), "iter accuracy": lda_acc, "vote pred": lda_target_pred, "component vote pred": breaks_lda_target_pred,"confusion matrix": lda_cm, "component confusion matrix": breaks_lda_cm}
+    r["Results"]["Naive Bayes"] = {"accuracy": np.mean(gnb_acc), "std": np.std(gnb_acc), "iter accuracy": gnb_acc, "vote pred": gnb_target_pred, "component vote pred": breaks_gnb_target_pred, "confusion matrix": gnb_cm, "component confusion matrix": breaks_gnb_cm}
+    r["Results"]["KNN"] = {"accuracy": np.mean(knn_acc), "std": np.std(knn_acc), "iter accuracy": knn_acc, "vote pred": knn_target_pred, "component vote pred": breaks_knn_target_pred, "confusion matrix": knn_cm, "component confusion matrix": breaks_knn_cm}
     r["Test Frags"] = target_test_frags
     r["Guess by Frag"] = frag_to_guess
     r["Component Test Frags"] = breaks_target_test_frags
@@ -381,7 +381,7 @@ def save_results(results, fname="AMAAZE_test_results.csv", full=False, full_head
                         collect.append(results[test]["Guess by Frag"][frag][algo])
                     writer.writerow(collect)
             
-            if test_name == "breaks":
+            if test_name == "breaks": # Components and votes will match in the fragment level case.
                 fname = "./results/"+ full_header + test_name + "_component_frag_guesses" + ".csv"
                 with open(fname, 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile)
