@@ -257,7 +257,7 @@ def run_test(data, target, specimens, test_name, results={}, reps=300, rf_nb = F
             breaks_frag_to_guess[frag]["Extra Trees"] += 1 * (et_pred[i] == target_test[i])
             breaks_frag_to_guess[frag]["SVM - linear"] += 1 * (svmL_pred[i] == target_test[i])
             breaks_frag_to_guess[frag]["SVM - RBF"] += 1 * (svmRBF_pred[i] == target_test[i])
-            frag_to_guess[frag]["Neural Network"] += 1 * (nn_pred[i] == target_test[i])
+            breaks_frag_to_guess[frag]["Neural Network"] += 1 * (nn_pred[i] == target_test[i])
             breaks_frag_to_guess[frag]["Naive Bayes" ] += 1 * (gnb_pred[i] == target_test[i])
             breaks_frag_to_guess[frag]["LDA"] += 1 * (lda_pred[i] == target_test[i])
             breaks_frag_to_guess[frag]["KNN"] += 1 * (knn_pred[i] == target_test[i])
