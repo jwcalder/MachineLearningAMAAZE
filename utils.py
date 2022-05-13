@@ -423,6 +423,21 @@ class Net(nn.Module):
                 'gamma':self.gamma,
                 'verbose':self.verbose}
 
+    def __str__(self):
+        s =  'NeuralNetwork('
+        s += 'structure='+str(self.structure)
+        s += ',num_classes='+str(self.num_classes)
+        s += ',dropout_rate=%.2f'%self.dropout_rate
+        s += ',batch_normalization='+str(self.batch_normalization)
+        s += ',epochs=%d'%self.epochs
+        s += ',cuda='+str(self.cuda)
+        s += ',learning_rate='+str(self.learning_rate)
+        s += ',batch_size=%d'%self.batch_size
+        s += ',gamma='+str(self.gamma)
+        s += ',verbose='+str(self.verbose)
+        s += ')'
+        return s
+
     def reset(self):
 
         self.final.reset_parameters()
