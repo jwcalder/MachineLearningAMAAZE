@@ -6,6 +6,8 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from utils import Net
+import pickle
+from tqdm import tqdm
 
 def frag_to_break(x_frag,y_frag,num_breaks_per_frag,num_break_features):
     """Fragment level to break level conveter
@@ -48,75 +50,105 @@ def frag_to_break(x_frag,y_frag,num_breaks_per_frag,num_break_features):
 
     return x,y
 
-num_fragments = 10
-num_features = 20
+def train_test_models(models,x_train,y_train,x_test,y_test):
+    """Train and test a list of models
+    ============
+
+    Trains and computes test accuracy over a list of models.
+    
+    Parameters
+    ----------
+    models : Python list
+        List of machine learning models to test.
+    x_train : numpy array (float)
+        Training data.
+    y_train : numpy array (int)
+        Training labels
+    x_test : numpy array (float)
+        Testing data.
+    y_test : numpy array (int)
+        Testing labels
+    
+    Returns
+    -------
+    r : Python dictionary
+        Python dictionary containing accuracies for all methods.
+    """
+
+    r = {}
+    for model in models:
+        model_name = str(model)
+        model.fit(x_train,y_train)
+        pred = model.predict(x_test)
+        acc = 100*accuracy_score(y_test,pred)
+        r[model_name] = acc
+    return r
+
+def append(d,r):
+    for key in d:
+        d[key] += [r[key]]
+
+#Parameters for test
+num_fragments = 200
+num_features = 34
 num_breaks_per_frag = 7
-num_break_features = 2
+num_break_features = 6
+bootstrap_factor = 100
+num_trials = 100
 
-x_frag = np.random.rand(num_fragments,num_features)
-y_frag = (np.random.rand(num_fragments) > 0.5).astype(int)
 
-#Splitting at break level
-x,y = frag_to_break(x_frag,y_frag,num_breaks_per_frag,num_break_features)
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
-
+#List of models
 models = []
 models += [LinearDiscriminantAnalysis()]
 models += [RandomForestClassifier()]
 models += [svm.SVC(kernel="linear")]
 models += [svm.SVC(kernel="rbf")]
 models += [KNeighborsClassifier(n_neighbors=1)]
-models += [Net(structure=[x.shape[1],100,200,400], num_classes=2)]
+models += [Net(structure=[num_features+num_break_features,100,200,400], num_classes=2, cuda=True)]
 
+#Dictionaries for results
+break_acc = {}
+frag_acc = {}
+boot_acc = {}
 for model in models:
-    print(model)
-#pred = model.fit(x_train,y_train).predict(x_test)
-#print({model})
+    model_name = str(model)
+    break_acc[model_name] = []
+    frag_acc[model_name] = []
+    boot_acc[model_name] = []
 
-#Splitting at fragment level
-x_frag_train, x_frag_test, y_frag_train, y_frag_test = train_test_split(x_frag, y_frag, test_size=0.25)
-x_train,y_train = frag_to_break(x_frag_train,y_frag_train,num_breaks_per_frag,num_break_features)
-x_test,y_test = frag_to_break(x_frag_test,y_frag_test,num_breaks_per_frag,num_break_features)
+for _ in tqdm(range(num_trials)):
+    #Random fragment level data
+    x_frag = np.random.rand(num_fragments,num_features)
+    y_frag = (np.random.rand(num_fragments) > 0.5).astype(int)
 
-#def one_trial(num_fragments,num_breaks_per_frag,num_features):
-#    x_frag = np.random.rand(num_fragments,num_features)
-#    y_frag = (np.random.rand(num_fragments,1) > 0.5).astype(int)
-#
-#    #Splitting at break level
-#    x,y = frag_to_break(x_frag,y_frag,num_breaks_per_frag,2)
-#    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
-#    rf_pred = RandomForestClassifier().fit(x_train,y_train).predict(x_test)
-#    accuracy = accuracy_score(rf_pred, y_test)
-#    print('RF,break-level,%d,%d,%d,%f'%(num_fragments,num_breaks_per_frag,num_features,accuracy),flush=True)
-#
-#    svm_pred = svm.SVC(kernel="linear").fit(x_train,y_train).predict(x_test)
-#    accuracy = accuracy_score(svm_pred, y_test)
-#    print('SVM,break-level,%d,%d,%d,%f'%(num_fragments,num_breaks_per_frag,num_features,accuracy),flush=True)
-#
-#    #Splitting at fragment level
-#    x_frag_train, x_frag_test, y_frag_train, y_frag_test = train_test_split(x_frag, y_frag, test_size=0.25)
-#    x_train,y_train = frag_to_break(x_frag_train,y_frag_train,num_breaks_per_frag,2)
-#    x_test,y_test = frag_to_break(x_frag_test,y_frag_test,num_breaks_per_frag,2)
-#
-#    rf_pred = RandomForestClassifier().fit(x_train,y_train).predict(x_test)
-#    accuracy = accuracy_score(rf_pred, y_test)
-#    print('RF,frag-level,%d,%d,%d,%f'%(num_fragments,num_breaks_per_frag,num_features,accuracy),flush=True)
-#
-#    svm_pred = svm.SVC(kernel="linear").fit(x_train,y_train).predict(x_test)
-#    accuracy = accuracy_score(svm_pred, y_test)
-#    print('SVM,frag-level,%d,%d,%d,%f'%(num_fragments,num_breaks_per_frag,num_features,accuracy),flush=True)
-#
-#
-#print('Method,Split Type,Number of Fragments,Number of Breaks Per Fragment,Number of Features,Accuracy',flush=True)
-#for _ in range(10):
-#    for num_fragments in [100,1000]:
-#        for num_breaks_per_frag in [2,5,10,20]:
-#            for num_features in [10,20,50,100]:
-#                one_trial(num_fragments,num_breaks_per_frag,num_features)
+    #Splitting at break level
+    x,y = frag_to_break(x_frag,y_frag,num_breaks_per_frag,num_break_features)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    r = train_test_models(models,x_train,y_train,x_test,y_test)
+    append(break_acc,r)
+
+    #Bootstrapping
+    ind = np.random.choice(num_fragments,size=bootstrap_factor*num_fragments)
+    x,y = x[ind,:],y[ind]
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    r = train_test_models(models,x_train,y_train,x_test,y_test)
+    append(boot_acc,r)
+
+    #Splitting at fragment level
+    x_frag_train, x_frag_test, y_frag_train, y_frag_test = train_test_split(x_frag, y_frag, test_size=0.25)
+    x_train,y_train = frag_to_break(x_frag_train,y_frag_train,num_breaks_per_frag,num_break_features)
+    x_test,y_test = frag_to_break(x_frag_test,y_frag_test,num_breaks_per_frag,num_break_features)
+    r = train_test_models(models,x_train,y_train,x_test,y_test)
+    append(frag_acc,r)
 
 
-
-
+#Write dictionaries of results to files
+with open('results/randomized_break.pkl','wb') as f:
+    pickle.dump(break_acc,f)
+with open('results/randomized_frag.pkl','wb') as f:
+    pickle.dump(frag_acc,f)
+with open('results/randomized_boot.pkl','wb') as f:
+    pickle.dump(boot_acc,f)
 
 
 

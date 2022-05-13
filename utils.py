@@ -427,7 +427,7 @@ class Net(nn.Module):
         s =  'NeuralNetwork('
         s += 'structure='+str(self.structure)
         s += ',num_classes='+str(self.num_classes)
-        s += ',dropout_rate=%.2f'%self.dropout_rate
+        s += ',dropout_rate='+str(self.dropout_rate)
         s += ',batch_normalization='+str(self.batch_normalization)
         s += ',epochs=%d'%self.epochs
         s += ',cuda='+str(self.cuda)
