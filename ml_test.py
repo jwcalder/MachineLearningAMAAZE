@@ -1,6 +1,9 @@
 import utils
 import csv
 import numpy as np
+import os
+import sys
+from pandas import DataFrame
 from datetime import datetime
 from warnings import simplefilter
 from sklearn.exceptions import ConvergenceWarning
@@ -9,9 +12,12 @@ from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
+from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
 from tqdm import trange
 
@@ -74,7 +80,7 @@ def create_dataset(options):
 
     return data, target, specimens
 
-def run_test(data, target, specimens, dataset_level, desc, results={}, reps=300):
+def run_test(data, target, specimens, dataset_level, desc, results={}, reps=3):
     """Run Test
     ========
 
@@ -227,41 +233,15 @@ def compile_results(results):
     for test in results.keys():
         test_name = results[test]["Test"]
         reps = results[test]["reps"]
-        save_sum_ls = [["Test:", test_name, "Summary Stats", "Reps:", reps]]
-        save_sum_ls.append(["Algorithm", "Mean Accuracy", "Standard Deviation"])
-        for algo in results[test]["Results"].keys():
-            inner_ls = []
-            for vote in results[test]["Results"][algo]["iter vote"]:
-                inner_ls.append(vote["Mean Accuracy"])
-            results[test]["Results"][algo]["saved iter acc"] = inner_ls
-            save_sum_ls.append([algo, 100 * np.mean(inner_ls), 100 * np.std(inner_ls)])
-        results[test]["Summary Acc"] = save_sum_ls
-    
-        # Iter Acc
-        save_iter_ls = [["Test:", test_name, "Iter Accuracy", "Reps:", reps]]
-        save_iter_ls.append([*results[test]["Results"].keys()])
-        names_inner_ls = []
-        iter_inner_ls = []
-        for algo in results[test]["Results"].keys():
-            names_inner_ls.append(algo)
-            iter_inner_ls.append(results[test]["Results"][algo]["saved iter acc"])
         
-        save_iter_ls.append(names_inner_ls)
-        
-        # There are better ways to reshape these lists
-        for i in range(reps):
-            inner_ls = []
-            for ii in range(len(iter_inner_ls)):
-                inner_ls.append(iter_inner_ls[ii][i])
-            save_iter_ls.append(inner_ls)
-        
-        results[test]["Iter Algo Acc"] = save_iter_ls
-    
-        # Component Confusion matrices
+        # Component Confusion matrices & f1 scores
         target_truth = results[test]["Truth Targets"]
         for algo in results[test]["Results"].keys():
             component_cm = confusion_matrix(target_truth, results[test]["Results"][algo]["iter pred"])
             results[test]["Results"][algo]["Component CM"] = component_cm
+            
+            component_f1 = f1_score(target_truth,results[test]["Results"][algo]["iter pred"])
+            results[test]["Results"][algo]["Component F1"] = component_f1
         
         # Appearances
         for algo in results[test]["Results"].keys():
@@ -289,6 +269,10 @@ def compile_results(results):
             # Voting CM
             vote_cm = confusion_matrix(vote_truth, vote_pred)
             results[test]["Results"][algo]["Vote CM"] = vote_cm
+            
+            # Voting F1
+            vote_f1 = f1_score(vote_truth, vote_pred)
+            results[test]["Results"][algo]["Vote F1"] = vote_f1
             
         # Confusion Matrices Again
             
@@ -336,7 +320,37 @@ def compile_results(results):
         
         results[test]["Saved Components"] = component_apperences
         results[test]["Saved Votes"] = vote_apperences
-            
+    
+        save_sum_ls = [["Test:", test_name, "Summary Stats", "Reps:", reps]]
+        save_sum_ls.append(["Algorithm", "Mean Accuracy", "Standard Deviation", "F1 Score", "Component F1 Score"])
+        for algo in results[test]["Results"].keys():
+            inner_ls = []
+            for vote in results[test]["Results"][algo]["iter vote"]:
+                inner_ls.append(vote["Mean Accuracy"])
+            results[test]["Results"][algo]["saved iter acc"] = inner_ls
+            save_sum_ls.append([algo, 100 * np.mean(inner_ls), 100 * np.std(inner_ls), results[test]["Results"][algo]["Vote F1"], results[test]["Results"][algo]["Component F1"]])
+        results[test]["Summary Acc"] = save_sum_ls
+        
+        # Iter Acc
+        save_iter_ls = [["Test:", test_name, "Iter Accuracy", "Reps:", reps]]
+        save_iter_ls.append([*results[test]["Results"].keys()])
+        names_inner_ls = []
+        iter_inner_ls = []
+        for algo in results[test]["Results"].keys():
+            names_inner_ls.append(algo)
+            iter_inner_ls.append(results[test]["Results"][algo]["saved iter acc"])
+        
+        save_iter_ls.append(names_inner_ls)
+        
+        # There are better ways to reshape these lists
+        for i in range(reps):
+            inner_ls = []
+            for ii in range(len(iter_inner_ls)):
+                inner_ls.append(iter_inner_ls[ii][i])
+            save_iter_ls.append(inner_ls)
+        
+        results[test]["Iter Algo Acc"] = save_iter_ls
+    
     return results
 
 def save_results(results):
@@ -351,17 +365,35 @@ def save_results(results):
         Dictionary that contains all the results.
     """
     
-    header = "./results/"
-    fname = "Summary_"
     dt = datetime.now() # So you don't accidentally lose data if you happen to have a previous test thing open.
     
-    # Datetime doesn't store "month" as a 2 digit string, but I want it as a 2 digit string, so all our timestamps are the same length
+    # Datetime doesn't store things as 2 digit strings, but I want them in that format. 
     if dt.month < 10:
         month = f"0{dt.month}"
     else:
         month = dt.month
     
-    footer = f"_{dt.year}{month}{dt.day}{dt.second}.csv"
+    if dt.day < 10:
+        day =  f"0{dt.day}"
+    else:
+        day = dt.day
+      
+    if dt.hour < 10:
+        hour = f"0{dt.hour}"
+    else:
+        hour = dt.hour    
+      
+    if dt.minute < 10:
+        minute = f"0{dt.minute}"
+    else:
+        minute = dt.minute
+    
+    header = f"./results/AMMAZE Tests {dt.year}{month}{day}{hour}{minute}/"
+    os.mkdir(header)
+    
+    fname = "Summary_"
+    
+    footer = ".csv"
     
     for test in results.keys():
         test_name = results[test]["Test"]
@@ -412,19 +444,18 @@ def save_results(results):
                 
 def main():
     # Main Break Test
-    break_test = {"dataset": "breaks", "target_field": "Effector", "desc": "",
-                  "numerical_fields" : None, "categorical_fields" : None, "sum_stats_fields" : None, "sum_stats" : None, "count_fields" : None}
+    break_test = {"dataset": "breaks", "target_field": "Effector", "desc": "","numerical_fields" : None, "categorical_fields" : None, "sum_stats_fields" : None, "sum_stats" : None, "count_fields" : None}
     
     # Main Frag Test
     frag_test = {"dataset": "frags", "target_field": "Effector", "desc": "",
                  "numerical_fields" : None, "categorical_fields" : None, "sum_stats_fields" : None, "sum_stats" : None, "count_fields" : None}
     
     # To load the data with only fragment level features:
-    frag_test_frag_only = {"dataset": "frags", "target_field": "Effector", "desc": "_frag_level_vars_only",
-                           "numerical_fields" : None, "categorical_fields" : None, "sum_stats_fields" : [], "sum_stats" : [], "count_fields" : []}    
+    # frag_test_frag_only = {"dataset": "frags", "target_field": "Effector", "desc": "_frag_level_vars_only",
+                           # "numerical_fields" : None, "categorical_fields" : None, "sum_stats_fields" : [], "sum_stats" : [], "count_fields" : []}    
     
     # To get the data with only break level features:
-    frag_test_break_only = {"dataset": "frags", "target_field": "Effector", "desc": "_break_level_vars_only", "numerical_fields" : [], "categorical_fields" : [] , "sum_stats_fields" : None, "sum_stats" : None, "count_fields" : None}    
+    # frag_test_break_only = {"dataset": "frags", "target_field": "Effector", "desc": "_break_level_vars_only", "numerical_fields" : [], "categorical_fields" : [] , "sum_stats_fields" : None, "sum_stats" : None, "count_fields" : None}    
     
     # Further Tests...
     # Note that if your test desc are the same across datasets, things will overwrite because the test name will be the same, and you probably don't want that. 
@@ -433,7 +464,7 @@ def main():
     #                  "numerical_fields" : [], "categorical_fields" : [], "sum_stats_fields" : [], "sum_stats" : [], "count_fields" : []}
     
     # Test compilation
-    tests = [break_test, frag_test, frag_test_frag_only, frag_test_break_only]
+    tests = [break_test]
     
     # Iterating over the tests
     results = {}
