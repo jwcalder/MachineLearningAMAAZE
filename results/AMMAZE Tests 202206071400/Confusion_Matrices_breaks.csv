@@ -1,0 +1,68 @@
+Test:,breaks,Vote CM,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest
+15343,5231
+5629,8597
+
+Extra Trees
+15276,5298
+5634,8592
+
+SVM - Linear
+11193,9381
+3426,10800
+
+SVM - RBF
+13593,6981
+4367,9859
+
+Neural Network
+12842,7732
+4044,10182
+
+Linear Discriminant Analysis
+12938,7636
+4451,9775
+
+Gaussian Naive Bayes
+7076,13498
+1330,12896
+
+K-Nearest Neighbor
+12971,7603
+4216,10010
+
+Test:,breaks,Component CM,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest
+87200,36290
+46904,71556
+
+Extra Trees
+85766,37724
+47249,71211
+
+SVM - Linear
+69007,54483
+32523,85937
+
+SVM - RBF
+76728,46762
+38321,80139
+
+Neural Network
+74417,49073
+38415,80045
+
+Linear Discriminant Analysis
+78157,45333
+38982,79478
+
+Gaussian Naive Bayes
+52018,71472
+24100,94360
+
+K-Nearest Neighbor
+72151,51339
+37913,80547
+

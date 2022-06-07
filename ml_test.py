@@ -464,7 +464,7 @@ def main():
     #                  "numerical_fields" : [], "categorical_fields" : [], "sum_stats_fields" : [], "sum_stats" : [], "count_fields" : []}
     
     # Test compilation
-    tests = [break_test]
+    tests = [frag_test]
     
     # Iterating over the tests
     results = {}
