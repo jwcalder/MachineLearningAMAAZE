@@ -1,0 +1,26 @@
+Break-Level Split
+Method,Accuracy (Standard Deviation)
+LinearDiscriminantAnalysis(),65.1 (4.1)
+RandomForestClassifier(),100.0 (0.0)
+SVC(kernel='linear'),66.5 (3.7)
+SVC(),99.6 (0.7)
+KNeighborsClassifier(n_neighbors=1),100.0 (0.1)
+NeuralNetwork,63.3 (3.8)
+
+Bootstrapping
+Method,Accuracy (Standard Deviation)
+LinearDiscriminantAnalysis(),96.7 (4.1)
+RandomForestClassifier(),100.0 (0.0)
+SVC(kernel='linear'),100.0 (0.0)
+SVC(),100.0 (0.0)
+KNeighborsClassifier(n_neighbors=1),100.0 (0.0)
+NeuralNetwork,100.0 (0.0)
+
+Frag-Level split
+Method,Accuracy (Standard Deviation)
+LinearDiscriminantAnalysis(),50.1 (6.9)
+RandomForestClassifier(),50.7 (7.3)
+SVC(kernel='linear'),50.2 (7.4)
+SVC(),49.6 (7.0)
+KNeighborsClassifier(n_neighbors=1),50.0 (6.4)
+NeuralNetwork,50.7 (5.8)

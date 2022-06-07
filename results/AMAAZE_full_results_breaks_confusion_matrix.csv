@@ -1,0 +1,30 @@
+Test: breaks,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest (no bootstrap)
+15466,5278
+5876,8180
+Random Forest
+15336,5408
+5496,8560
+Extra Trees
+15236,5508
+5513,8543
+SVM - linear
+11050,9694
+3369,10687
+SVM - RBF
+13443,7301
+4327,9729
+Neural Network
+12480,8264
+3765,10291
+LDA
+12830,7914
+4378,9678
+Naive Bayes
+7074,13670
+1375,12681
+KNN
+12823,7921
+4057,9999
+

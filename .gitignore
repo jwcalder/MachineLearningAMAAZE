@@ -1,7 +1,0 @@
-*.csv
-*.pkl
-__pycache__/
-tables/*.tex
-tables/*.log
-tables/*.pdf
-tables/*.aux

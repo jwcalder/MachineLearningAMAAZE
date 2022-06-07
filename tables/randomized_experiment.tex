@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\begin{document}
+
+
+
+\begin{table}[t!]
+\vspace{-3mm}
+\caption{Results of randomized ML experiment. The mean accuracy over 100 trials is reproted, with the standard deviation in paraentheses.}
+\vspace{-3mm}
+\label{tab:rand}
+\vskip 0.15in
+\begin{center}
+\begin{small}
+\begin{sc}
+\begin{tabular}{lccc}
+\toprule
+& {\bf Break-Level} & {\bf Frag-Level Split} & {\bf Frag-Level}\\ 
+{\bf Algorithm} & {\bf Split} & {\bf with Bootstrapping} &{\bf Split} \\ 
+\midrule
+LDA& 65.1 (4.1)& 96.7 (4.1)& 50.1 (6.9)\\ 
+Random Forests& 100.0 (0.0)& 100.0 (0.0)& 50.7 (7.3)\\ 
+Linear SVM& 66.5 (3.7)& 100.0 (0.0)& 50.2 (7.4)\\ 
+RBF SVM& 99.6 (0.7)& 100.0 (0.0)& 49.6 (7.0)\\ 
+Nearest neighbor& 100.0 (0.1)& 100.0 (0.0)& 50.0 (6.4)\\ 
+Neural Network& 63.3 (3.8)& 100.0 (0.0)& 50.7 (5.8)\\ 
+\bottomrule
+\end{tabular}
+\end{sc}
+\end{small}
+\end{center}
+\vskip -0.1in
+\end{table}
+
+
+\end{document}

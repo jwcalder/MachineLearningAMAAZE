@@ -1,0 +1,68 @@
+Test:,frags_break_level_vars_only,Vote CM,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest
+17179,3414
+4676,9531
+
+Extra Trees
+17217,3376
+4595,9612
+
+SVM - Linear
+16799,3794
+4622,9585
+
+SVM - RBF
+16989,3604
+4294,9913
+
+Neural Network
+16232,4361
+3705,10502
+
+Linear Discriminant Analysis
+16413,4180
+4686,9521
+
+Gaussian Naive Bayes
+12046,8547
+2213,11994
+
+K-Nearest Neighbor
+16761,3832
+4654,9553
+
+Test:,frags_break_level_vars_only,Component CM,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest
+17179,3414
+4676,9531
+
+Extra Trees
+17217,3376
+4595,9612
+
+SVM - Linear
+16799,3794
+4622,9585
+
+SVM - RBF
+16989,3604
+4294,9913
+
+Neural Network
+16232,4361
+3705,10502
+
+Linear Discriminant Analysis
+16413,4180
+4686,9521
+
+Gaussian Naive Bayes
+12046,8547
+2213,11994
+
+K-Nearest Neighbor
+16761,3832
+4654,9553
+
