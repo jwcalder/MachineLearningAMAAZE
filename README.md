@@ -4,7 +4,7 @@ This repository provides the code and data to reproduce the experimental results
 
 K. Yezzi-Woodley, A. Terwilliger, J. Li, E. Chen, M. Tappen, J. Calder, P. J. Olver. [Using machine learning on new feature sets extracted from 3D models of broken animal bones to classify fragments according to break agent.](https://arxiv.org/abs/2205.10430) arXiv preprint:2205.10430, 2022.
 
-##General overview
+## General overview
 
 The folder `preprocessing` contains all the python scripts used to preprocess the raw data we collected into a form that can be used by machine learning algorithms. The scripts in the preprocessing folder generate the files `break_level_ml.csv` and `frag_level_ml.csv`, which contain the break-level and fragment-level datasets, respectively, with all data converted to numerical formats. 
 
