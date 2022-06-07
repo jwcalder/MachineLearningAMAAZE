@@ -61,33 +61,6 @@ for i in range(3218):
     print(specimens[i,], end = ', ')
     print(km.labels_[i])
 sys.stdout.close()
-#data,target,specimens,target_names = frag_level_ml_dataset()
-#data = preprocessing.StandardScaler().fit_transform(data)
-#sc(data, tag = 'frag_level', size = 10, color = 'RdYlGn')
 plt.show()
 
 
-
-
-
-#print(accuracy_score(target,km))
-#c = confusion_matrix(target,km)
-#print(c)
-
-#LDA embedding
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-
-#l = LDA(n_components = 1)
-#data_lda = l.fit_transform(data, target)
-#plt.scatter(data_lda[:,0], data_lda[:,1], c =  target)
-#plt.show()
-
-
-
-
-#Graph Settings
-
-
-
-#http://blog.mahler83.net/2019/10/rotating-3d-t-sne-animated-gif-scatterplot-with-matplotlib/
-#Save animation as GIF

@@ -16,6 +16,18 @@ with open('results/randomized_frag.pkl','rb') as f:
 with open('results/randomized_boot.pkl','rb') as f:
     boot_acc = pickle.load(f)
 
+print('Break-Level Split')
+print('Method,Accuracy (Standard Deviation)')
+print_results(break_acc)
+
+print('\nBootstrapping')
+print('Method,Accuracy (Standard Deviation)')
+print_results(boot_acc)
+
+print('\nFrag-Level split')
+print('Method,Accuracy (Standard Deviation)')
+print_results(frag_acc)
+
 
 savefile = 'tables/randomized_experiment.tex'
 caption = 'Results of randomized ML experiment. The mean accuracy over 100 trials is reproted, with the standard deviation in paraentheses.'
