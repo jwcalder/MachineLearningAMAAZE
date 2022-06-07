@@ -12,13 +12,6 @@ import matplotlib.pyplot as plt
 import os,sys
 import pandas as pd
 
-#Put all possible directory locations here
-data_dirs = ['/drive/GoogleDrive/AMAAZE/Dissertation_YezziWoodley/Paper3_MoclanReplicationPaper/',
-             '/Users/jeff/Moclan/Paper3_MoclanReplicationPaper/',
-             '/data/ML_data/',
-             '/home/jeff/Dropbox/Work/AMAAZE/csv_files/',
-             'C:\\Users\\artif\\Documents\\University\\AMAAZE\\GitHub CSVs']
-
 break_level_fields_numerical = ['Count',
                                 'Mean',
                                 'Median',
@@ -71,14 +64,6 @@ frag_level_fields_numerical = ['Surface Area',
                                'Bounding Box Dim2',
                                'Bounding Box Dim3']
 
-#Find the directory that exists on a particular machine
-try:
-    data_dir_enum = enumerate(data_dirs)
-    _,data_dir = next(data_dir_enum)
-    while not os.path.isdir(data_dir):
-        _,data_dir = next(data_dir_enum)
-except:
-    print('Warning: Could not find data directory.')
 
 def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, target_field='Effector'):
     """Break Level Machine Learning Dataset
