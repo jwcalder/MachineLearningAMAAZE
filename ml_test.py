@@ -80,7 +80,7 @@ def create_dataset(options):
 
     return data, target, specimens
 
-def run_test(data, target, specimens, dataset_level, desc, results={}, reps=3):
+def run_test(data, target, specimens, dataset_level, desc, results={}, reps=300):
     """Run Test
     ========
 
