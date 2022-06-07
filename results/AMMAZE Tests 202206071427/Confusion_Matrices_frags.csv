@@ -1,0 +1,34 @@
+Test:,frags,Vote CM,Reps:,300
+Algorithm,Confusion Matrix
+Random Forest
+17069,3461
+4724,9546
+
+Extra Trees
+17228,3302
+4546,9724
+
+SVM - Linear
+16752,3778
+4332,9938
+
+SVM - RBF
+17309,3221
+4092,10178
+
+Neural Network
+16206,4324
+3536,10734
+
+Linear Discriminant Analysis
+16632,3898
+4372,9898
+
+Gaussian Naive Bayes
+13344,7186
+2426,11844
+
+K-Nearest Neighbor
+17022,3508
+4579,9691
+
