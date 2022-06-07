@@ -18,7 +18,7 @@ styles = ['^-', 'o-', 'd-', 's-', 'p-', 'x-', '*-']
 
 def sc(data, tag, size, color):
     print(tag)
-    W = gl.weightmatrix.knn(data,10, similarity = 'angular')
+    W = gl.weightmatrix.knn(data, 20, similarity = 'angular')
 
     avgAcc = 0
 
@@ -36,31 +36,28 @@ def sc(data, tag, size, color):
     print(c)
     # Creating graphs from spectral embedding
     G = gl.graph(W)
+    print('Graph is connected:')
+    print(G.isconnected())
     vals, vec = G.eigen_decomp(normalization='normalized')
 
     # 2D graph
     plt.figure()
-    plt.scatter(vec[:, 1], vec[:, 2], c=target, s = size, cmap = color)
+    plt.scatter(vec[:, 1], vec[:, 2], c=target, vmax = 1.5, s = size, cmap = color)
     plt.savefig('figures/spectral_embedding_2D_' + tag + '.pdf')
 
     plt.figure()
-    plt.scatter(vec[:, 1], vec[:, 2], c=pred_labels, s = size, cmap = color)
+    plt.scatter(vec[:, 1], vec[:, 2], c=pred_labels, vmax = 1.5, s = size, cmap = color)
     plt.savefig('figures/spectral_clustering_2D_' + tag + '.pdf')
+
     return vec
 
 data,target,specimens,break_numbers,target_names = break_level_ml_dataset()
 data = preprocessing.StandardScaler().fit_transform(data)
-vec = sc(data, tag = 'break_level', size = 3, color = 'RdYlGn')
+vec = sc(data, tag = 'break_level', size = 3, color = 'viridis')
 
-#K means Clustering
-from sklearn.cluster import KMeans
-km = KMeans(n_clusters = 3).fit(vec)
-sys.stdout = open('results/k_means_clusters_break.csv', 'w')
-print('Specimen, 3-means Clustering Label')
-for i in range(3218):
-    print(specimens[i,], end = ', ')
-    print(km.labels_[i])
-sys.stdout.close()
+
+data,target,specimens,target_names = frag_level_ml_dataset(numerical_fields=[], categorical_fields=[])
+data = preprocessing.StandardScaler().fit_transform(data)
+sc(data, tag = 'frag_level', size = 10, color = 'viridis')
 plt.show()
-
 
