@@ -388,7 +388,7 @@ def save_results(results):
     else:
         minute = dt.minute
     
-    header = f"./results/AMMAZE Tests {dt.year}{month}{day}{hour}{minute}/"
+    header = f"../results/AMMAZE Tests {dt.year}{month}{day}{hour}{minute}/"
     os.mkdir(header)
     
     fname = "Summary_"

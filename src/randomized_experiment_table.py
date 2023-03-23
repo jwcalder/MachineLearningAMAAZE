@@ -9,11 +9,11 @@ def print_results(d):
             name = 'NeuralNetwork'
         print(name+',%.1f (%.1f)'%(np.mean(acc),np.std(acc)))
 
-with open('results/randomized_break.pkl','rb') as f:
+with open('../results/randomized_break.pkl','rb') as f:
     break_acc = pickle.load(f)
-with open('results/randomized_frag.pkl','rb') as f:
+with open('../results/randomized_frag.pkl','rb') as f:
     frag_acc = pickle.load(f)
-with open('results/randomized_boot.pkl','rb') as f:
+with open('../results/randomized_boot.pkl','rb') as f:
     boot_acc = pickle.load(f)
 
 print('Break-Level Split')
@@ -29,7 +29,7 @@ print('Method,Accuracy (Standard Deviation)')
 print_results(frag_acc)
 
 
-savefile = 'tables/randomized_experiment.tex'
+savefile = '../tables/randomized_experiment.tex'
 caption = 'Results of randomized ML experiment. The mean accuracy over 100 trials is reproted, with the standard deviation in paraentheses.'
 table_key = 'rand'
 fontsize = 'small'

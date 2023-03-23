@@ -49,9 +49,9 @@ def moclan_dataset(bootstrap=False, bootstrap_num=1, level = 'moclan', dataset='
     test_name = level
     df = None
     if(dataset == "moclan"):
-        df = pd.read_csv('moclan.csv')
+        df = pd.read_csv('../data/moclan.csv')
     elif(dataset == "carngrouped"):
-        df = pd.read_csv('moclan_carngrouped.csv')
+        df = pd.read_csv('../data/moclan_carngrouped.csv')
         test_name = test_name + "_" + dataset
     else:
         raise ValueError("dataset must be 'moclan' or 'carngrouped'")
@@ -189,7 +189,7 @@ def save_results(results, fname = "Moclan_Replications.csv"):
         Name of the file that the results are saved to
 
     """
-    fname = "./results/"+fname
+    fname = "../results/"+fname
     with open(fname, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for test in results.keys():

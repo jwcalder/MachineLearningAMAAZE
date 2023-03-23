@@ -43,11 +43,11 @@ def sc(data, tag, size, color):
     # 2D graph
     plt.figure()
     plt.scatter(vec[:, 1], vec[:, 2], c=target, vmax = 1.5, s = size, cmap = color)
-    plt.savefig('figures/spectral_embedding_2D_' + tag + '.pdf')
+    plt.savefig('../figures/spectral_embedding_2D_' + tag + '.pdf')
 
     plt.figure()
     plt.scatter(vec[:, 1], vec[:, 2], c=pred_labels, vmax = 1.5, s = size, cmap = color)
-    plt.savefig('figures/spectral_clustering_2D_' + tag + '.pdf')
+    plt.savefig('../figures/spectral_clustering_2D_' + tag + '.pdf')
 
     return vec
 

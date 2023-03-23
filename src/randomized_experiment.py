@@ -143,11 +143,11 @@ for _ in tqdm(range(num_trials)):
 
 
 #Write dictionaries of results to files
-with open('results/randomized_break.pkl','wb') as f:
+with open('../results/randomized_break.pkl','wb') as f:
     pickle.dump(break_acc,f)
-with open('results/randomized_frag.pkl','wb') as f:
+with open('../results/randomized_frag.pkl','wb') as f:
     pickle.dump(frag_acc,f)
-with open('results/randomized_boot.pkl','wb') as f:
+with open('../results/randomized_boot.pkl','wb') as f:
     pickle.dump(boot_acc,f)
 
 

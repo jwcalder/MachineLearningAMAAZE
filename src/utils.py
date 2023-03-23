@@ -101,7 +101,7 @@ def break_level_ml_dataset(numerical_fields=None, categorical_fields=None, targe
     if categorical_fields is None:
         categorical_fields = break_level_fields_categorial
 
-    df = pd.read_csv('break_level_ml.csv') 
+    df = pd.read_csv('../data/break_level_ml.csv') 
 
     #Categorical Data
     cat_data = df[categorical_fields]
@@ -171,7 +171,7 @@ def frag_level_ml_dataset(numerical_fields=None, categorical_fields=None, sum_st
     if count_fields is None:
         count_fields = frag_level_count_fields
 
-    df = pd.read_csv('frag_level_ml.csv') 
+    df = pd.read_csv('../data/frag_level_ml.csv') 
 
     #Categorical Data
     cat_data = df[categorical_fields]
