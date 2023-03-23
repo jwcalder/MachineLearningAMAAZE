@@ -6,9 +6,9 @@ K. Yezzi-Woodley, A. Terwilliger, J. Li, E. Chen, M. Tappen, J. Calder, P. J. Ol
 
 ## General overview
 
-The folder `preprocessing` contains all the python scripts used to preprocess the raw data we collected into a form that can be used by machine learning algorithms. The scripts in the preprocessing folder generate the files `break_level_ml.csv` and `frag_level_ml.csv`, which contain the break-level and fragment-level datasets, respectively, with all data converted to numerical formats. 
+The `data` folder contains the preprocessed csv files used in the machine learning experiments. The folder `preprocessing` contains all the python scripts used to preprocess the raw data we collected into a form that can be used by machine learning algorithms. The scripts in the preprocessing folder generate the files `data/break_level_ml.csv` and `data/frag_level_ml.csv`, which contain the break-level and fragment-level datasets, respectively, with all data converted to numerical formats. 
 
-The file `moclan.csv` contains the data from Moclan et al., 2019, which we compare against, and `moclan_carngrouped.csv` contains the same data except with the carnivores grouped together.
+The file `data/moclan.csv` contains the data from Moclan et al., 2019, which we compare against, and `data/moclan_carngrouped.csv` contains the same data except with the carnivores grouped together.
 
 All results are saved in .csv files in the `results` folder. Likewise, many of the tables from the paper are automatically generated and saved in the `tables` folder, and figures are saved in the `figures` folder. 
 
@@ -18,6 +18,8 @@ pip install -r requirements.txt
 ```
 
 ## Description of scripts
+
+All python scripts are in the `src` folder. Descriptions of each script are below.
 
 1. `ml_test.py` runs all the main machine learning tests in the paper.
 2. `Moclan_replication.py` runs all of the experiments from our paper concerned with replicating the Moclan et al., 2019 study.
